@@ -8,11 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-base: #060813;
-            --bg-surface: rgba(15, 23, 42, 0.45);
-            --border-glass: rgba(255, 255, 255, 0.08);
+            --bg-base: #030308;
+            --bg-surface: rgba(8, 9, 18, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.04);
             --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
+            --text-secondary: #8e939e;
             --accent-green: #10b981;
             --accent-red: #ef4444;
             --accent-blue: #3b82f6;
@@ -34,40 +34,21 @@
             flex-direction: column;
             overflow-x: hidden;
             position: relative;
-            background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, var(--bg-base) 85%);
+            background-image: radial-gradient(circle at 50% 0%, #0d0c1c 0%, var(--bg-base) 80%);
+            letter-spacing: -0.01em;
         }
 
-        /* 2026 Background Blur Orbs */
-        .glow-orb {
+        /* 3D Glass Shield Brand Area Styles */
+        .header-glow {
             position: absolute;
-            border-radius: 50%;
-            filter: blur(140px);
-            z-index: -1;
-            opacity: 0.25;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 150px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.25) 0%, rgba(59, 130, 246, 0.05) 50%, transparent 100%);
+            z-index: 0;
             pointer-events: none;
-            animation: floating 12s infinite alternate ease-in-out;
-        }
-
-        .orb-1 {
-            width: 450px;
-            height: 450px;
-            background: linear-gradient(135deg, #4f46e5, #c084fc);
-            top: 10%;
-            left: 5%;
-        }
-
-        .orb-2 {
-            width: 380px;
-            height: 380px;
-            background: linear-gradient(135deg, #06b6d4, #3b82f6);
-            bottom: 15%;
-            right: 10%;
-            animation-delay: -4s;
-        }
-
-        @keyframes floating {
-            0% { transform: translateY(0px) rotate(0deg) scale(1); }
-            100% { transform: translateY(40px) rotate(15deg) scale(1.15); }
         }
 
         header {
@@ -75,47 +56,109 @@
             align-items: center;
             justify-content: space-between;
             padding: 1.5rem 2.5rem;
-            border-bottom: 1px solid var(--border-glass);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            background-color: rgba(6, 8, 19, 0.4);
-            position: sticky;
-            top: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: radial-gradient(ellipse at 50% 100%, #090815 0%, #030308 100%);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            position: relative;
             z-index: 100;
         }
 
         .logo-container {
             display: flex;
             align-items: center;
-            gap: 0.85rem;
+            gap: 1.25rem;
         }
 
-        .logo-icon {
-            font-size: 1.85rem;
-            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+        /* 3D Glass Shield Container */
+        .shield-3d-wrapper {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            perspective: 800px;
+        }
+
+        .shield-3d-body {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateY(0deg) rotateX(10deg);
+            animation: idle-spin 15s infinite linear;
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        @keyframes idle-spin {
+            0% { transform: rotateY(0deg) rotateX(10deg) rotateZ(0deg); }
+            50% { transform: rotateY(180deg) rotateX(-5deg) rotateZ(5deg); }
+            100% { transform: rotateY(360deg) rotateX(10deg) rotateZ(0deg); }
+        }
+
+        .shield-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 50% 50% 50% 50% / 15% 15% 85% 85%; /* Shield silhouette */
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        .layer-back {
+            transform: translateZ(-6px) scale(0.9);
+            border-color: rgba(99, 102, 241, 0.25);
+            background: rgba(99, 102, 241, 0.03);
+        }
+
+        .layer-mid {
+            transform: translateZ(0px);
+            border-color: rgba(59, 130, 246, 0.35);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        .layer-front {
+            transform: translateZ(6px) scale(1.05);
+            border-color: rgba(255, 255, 255, 0.25);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.0));
+            box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.15), 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .shield-rim-glow {
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(circle, #3b82f6 0%, #6366f1 70%, transparent 100%);
+            filter: blur(8px);
+            opacity: 0.7;
+            transform: translateZ(2px);
         }
 
         .logo-text {
             font-weight: 800;
-            font-size: 1.35rem;
-            letter-spacing: -0.03em;
-            background: linear-gradient(135deg, #93c5fd, #3b82f6, #2563eb);
+            font-size: 1.4rem;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #ffffff, #a5b4fc, #6366f1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
         }
 
         .badge {
-            background: rgba(255, 255, 255, 0.04);
-            color: #93c5fd;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+            color: #a5b4fc;
+            border: 1px solid rgba(255, 255, 255, 0.06);
             padding: 0.35rem 0.85rem;
             border-radius: 9999px;
             font-size: 0.72rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            letter-spacing: 0.08em;
         }
 
         main {
@@ -148,36 +191,61 @@
             gap: 2.5rem;
         }
 
-        /* 2026 Frosted Glass Cards */
+        /* Argus Glass Panel Cards */
         .card {
             background: var(--bg-surface);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 1.25rem; /* 20px */
             padding: 2rem;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.05);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+            box-shadow: 
+                0 25px 60px rgba(0, 0, 0, 0.55), 
+                inset 1px 1px 0 rgba(99, 102, 241, 0.2), 
+                inset -1px -1px 0 rgba(255, 255, 255, 0.02);
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+            opacity: 0;
+            animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .card:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 35px 70px rgba(0, 0, 0, 0.65), 
+                inset 1.5px 1.5px 0 rgba(99, 102, 241, 0.35), 
+                inset -1.5px -1.5px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        @keyframes scaleIn {
+            0% { opacity: 0; transform: scale(0.96) translateY(12px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Staggered load animation */
+        .dashboard-left > .card:nth-child(1) { animation-delay: 0.1s; }
+        .dashboard-left > .card:nth-child(2) { animation-delay: 0.2s; }
+        .dashboard-right > .card:nth-child(1) { animation-delay: 0.3s; }
+        .dashboard-right > .card:nth-child(2) { animation-delay: 0.4s; }
+
+        @keyframes light-pulse-flash {
+            0% { box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), inset 1px 1px 0 rgba(99, 102, 241, 0.2); }
+            50% { box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), inset 1px 1px 25px rgba(99, 102, 241, 0.6); }
+            100% { box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), inset 1px 1px 0 rgba(99, 102, 241, 0.2); }
         }
 
         .card-title {
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 800;
             color: var(--text-secondary);
             margin-bottom: 1.5rem;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        /* Tight typography and grids */
+        /* Stat layout with tight tracking */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -185,8 +253,8 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 0.85rem;
             padding: 1.35rem;
             display: flex;
@@ -196,47 +264,47 @@
         }
 
         .stat-card:hover {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .stat-label {
             font-size: 0.68rem;
             color: var(--text-secondary);
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
         }
 
         .stat-value {
-            font-size: 1.85rem;
+            font-size: 1.95rem;
             font-weight: 800;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.04em;
         }
 
-        /* Blooming indicators */
+        /* Light source colored indicators */
         .status-safe {
             color: var(--accent-green);
-            text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-            border-left: 3px solid var(--accent-green);
-            padding-left: 0.5rem;
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+            border-left: 3px solid rgba(16, 185, 129, 0.5);
+            padding-left: 0.65rem;
             transition: all 0.3s ease;
         }
 
         .status-anomaly {
             color: var(--accent-red);
-            text-shadow: 0 0 25px rgba(239, 68, 68, 0.65);
-            border-left: 3px solid var(--accent-red);
-            padding-left: 0.5rem;
-            animation: status-alert-pulse 1.5s infinite alternate ease-in-out;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
+            border-left: 3px solid rgba(239, 68, 68, 0.7);
+            padding-left: 0.65rem;
+            animation: alert-glow-pulse 2s infinite alternate ease-in-out;
             transition: all 0.3s ease;
         }
 
-        @keyframes status-alert-pulse {
-            0% { opacity: 0.8; text-shadow: 0 0 15px rgba(239, 68, 68, 0.35); }
-            100% { opacity: 1; text-shadow: 0 0 35px rgba(239, 68, 68, 0.75); }
+        @keyframes alert-glow-pulse {
+            0% { opacity: 0.8; text-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
+            100% { opacity: 1; text-shadow: 0 0 24px rgba(239, 68, 68, 0.8); }
         }
 
-        /* Buttons with 2026 aesthetics */
+        /* Buttons with top third glossy highlight strip */
         .action-group {
             display: flex;
             flex-direction: column;
@@ -244,28 +312,47 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%),
+                        linear-gradient(135deg, #2563eb, #0f172a);
             color: white;
-            border: none;
-            padding: 0.95rem 1.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 1rem 1.75rem;
             border-radius: 9999px; /* pill button */
             font-weight: 700;
             font-size: 0.88rem;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 4px 15px rgba(37, 99, 235, 0.25), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            position: relative;
+            overflow: hidden;
             outline: none;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
         }
 
         .btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.55);
-            background: linear-gradient(135deg, #60a5fa, #2563eb);
+            box-shadow: 
+                0 8px 25px rgba(37, 99, 235, 0.5), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 50%),
+                        linear-gradient(135deg, #3b82f6, #0f172a);
         }
 
         .btn:active:not(:disabled) {
@@ -273,40 +360,56 @@
         }
 
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
             box-shadow: none;
         }
 
         .btn-warning {
-            background: rgba(234, 88, 12, 0.1);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%),
+                        linear-gradient(135deg, #ea580c, #4c1d05);
             border: 1px solid rgba(234, 88, 12, 0.4);
-            color: #f97316;
-            box-shadow: none;
+            color: #ffaa7a;
+            box-shadow: 0 4px 15px rgba(234, 88, 12, 0.15);
+        }
+
+        .btn-warning::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
         }
 
         .btn-warning:hover:not(:disabled) {
-            background: linear-gradient(135deg, #ea580c, #c2410c);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 50%),
+                        linear-gradient(135deg, #f97316, #4c1d05);
             color: white;
-            box-shadow: 0 8px 25px rgba(234, 88, 12, 0.45);
+            box-shadow: 0 8px 25px rgba(234, 88, 12, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.15);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.03);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 50%),
+                        rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: none;
             color: var(--text-primary);
         }
 
         .btn-secondary:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.07);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 50%),
+                        rgba(255, 255, 255, 0.05);
             border-color: rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05);
         }
 
         .select-input {
-            background: rgba(6, 8, 19, 0.6);
+            background: rgba(4, 5, 10, 0.85);
             border: 1px solid var(--border-glass);
             color: var(--text-primary);
             padding: 0.95rem 1.25rem;
@@ -321,25 +424,25 @@
         }
 
         .select-input:focus {
-            border-color: rgba(59, 130, 246, 0.5);
+            border-color: rgba(99, 102, 241, 0.5);
         }
 
-        /* Glassmorphic Log Terminal */
+        /* Glassmorphic Console with colored left accent borders */
         .terminal {
-            background: rgba(5, 7, 12, 0.65);
+            background: rgba(4, 5, 10, 0.65);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 0.85rem;
             padding: 1.25rem;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.82rem;
             height: 250px;
             overflow-y: auto;
-            color: #e5e7eb;
+            color: #d1d5db;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.55rem;
         }
 
         .log-entry {
@@ -350,26 +453,26 @@
         }
 
         .log-system { 
-            color: #60a5fa; 
-            background: rgba(59, 130, 246, 0.05);
-            border-left-color: #3b82f6;
+            color: #818cf8; 
+            background: rgba(99, 102, 241, 0.04);
+            border-left-color: #6366f1;
         }
 
         .log-safe { 
             color: var(--accent-green); 
-            background: rgba(16, 185, 129, 0.05);
+            background: rgba(16, 185, 129, 0.04);
             border-left-color: var(--accent-green);
         }
 
         .log-alert { 
             color: var(--accent-red); 
-            background: rgba(239, 68, 68, 0.05);
+            background: rgba(239, 68, 68, 0.04);
             border-left-color: var(--accent-red);
         }
 
         .log-warning { 
             color: var(--accent-orange); 
-            background: rgba(249, 115, 22, 0.05);
+            background: rgba(249, 115, 22, 0.04);
             border-left-color: var(--accent-orange);
         }
 
@@ -392,21 +495,28 @@
 </head>
 <body>
 
-    <!-- Blurred Background Orbs -->
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
+    <!-- Cinematic lighting glow source behind the shield -->
+    <div class="header-glow"></div>
 
     <header>
         <div class="logo-container">
-            <span class="logo-icon">🛡️</span>
+            <!-- 3D Glass Shield Object -->
+            <div class="shield-3d-wrapper" id="hero-shield">
+                <div class="shield-rim-glow"></div>
+                <div class="shield-3d-body">
+                    <div class="shield-layer layer-back"></div>
+                    <div class="shield-layer layer-mid"></div>
+                    <div class="shield-layer layer-front"></div>
+                </div>
+            </div>
             <div style="display: flex; flex-direction: column;">
                 <span class="logo-text">Aegis-PQC</span>
-                <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;">Neural Intrusion Shield</span>
+                <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Neural Intrusion Shield</span>
             </div>
         </div>
         <div class="logo-container" style="gap: 1rem;">
             <span class="badge">NIST Kyber-768</span>
-            <span class="badge" style="border-color: rgba(16, 185, 129, 0.25); color: var(--accent-green); background: rgba(16, 185, 129, 0.04);">Neural Core Active</span>
+            <span class="badge" style="border-color: rgba(99, 102, 241, 0.2); color: #a5b4fc; background: rgba(99, 102, 241, 0.02);">Argus Protocol</span>
         </div>
     </header>
 
@@ -430,7 +540,7 @@
                     </div>
                     <div class="stat-card">
                         <span class="stat-label">MSE THRESHOLD</span>
-                        <span id="mse-threshold-val" class="stat-value" style="color: #60a5fa;">---</span>
+                        <span id="mse-threshold-val" class="stat-value" style="color: #818cf8;">---</span>
                     </div>
                 </div>
             </div>
@@ -511,6 +621,25 @@
             ]
         };
 
+        // 3D Shield mouse reactive parallax tilt
+        const wrapper = document.getElementById('hero-shield');
+        if (wrapper) {
+            const body = wrapper.querySelector('.shield-3d-body');
+            wrapper.addEventListener('mousemove', (e) => {
+                const rect = wrapper.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                // Add smooth tilt based on coordinates
+                body.style.animation = 'none';
+                body.style.transform = `rotateY(${x * 1.5}deg) rotateX(${-y * 1.5}deg) scale(1.05)`;
+            });
+            wrapper.addEventListener('mouseleave', () => {
+                body.style.transform = 'rotateY(0deg) rotateX(10deg)';
+                body.style.animation = 'idle-spin 15s infinite linear';
+            });
+        }
+
         // Initialize empty chart with 2026 visual assets
         function initChart() {
             const ctx = document.getElementById('timingChart').getContext('2d');
@@ -534,25 +663,25 @@
                     },
                     scales: {
                         y: {
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#9ca3af' }
+                            grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                            ticks: { color: '#8e939e' }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#9ca3af' }
+                            ticks: { color: '#8e939e' }
                         }
                     },
                     plugins: {
                         legend: {
-                            labels: { color: '#f3f4f6', font: { family: 'Inter', weight: '500' } }
+                            labels: { color: '#f3f4f6', font: { family: 'Inter', weight: '600' } }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                            backgroundColor: 'rgba(8, 9, 18, 0.9)',
                             titleColor: '#f3f4f6',
                             bodyColor: '#e5e7eb',
-                            borderColor: 'rgba(255, 255, 255, 0.12)',
+                            borderColor: 'rgba(255, 255, 255, 0.08)',
                             borderWidth: 1,
-                            padding: 10,
+                            padding: 12,
                             cornerRadius: 10
                         }
                     }
@@ -685,6 +814,13 @@
             document.getElementById('mse-val').textContent = data.mse.toFixed(5);
             
             const statusEl = document.getElementById('sys-status');
+            const cardEl = statusEl.closest('.card');
+            
+            // Staggered light-pulse animation flash on change
+            cardEl.style.animation = 'none';
+            cardEl.offsetHeight; // trigger reflow
+            cardEl.style.animation = 'light-pulse-flash 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+
             if (data.is_anomaly) {
                 statusEl.textContent = "INTRUSION ALERT";
                 statusEl.className = "stat-value status-anomaly";
