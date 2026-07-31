@@ -1,5 +1,4 @@
-python3 -c "
-content = '''# 🛡️ Aegis-PQC: Post-Quantum Cryptographic Core & Autonomous AI Threat Guard
+# 🛡️ Aegis-PQC: Post-Quantum Cryptographic Core & Autonomous AI Threat Guard
 
 ![Language](https://img.shields.io/badge/Language-C%2B%2B20-red)
 ![AI Engine](https://img.shields.io/badge/AI_Engine-PyTorch_2.8-orange)
@@ -26,7 +25,7 @@ The system detects four classes of timing side-channel attacks with **100% accur
 
 ## 🏗️ Architecture
 
-\`\`\`
+```
 +---------------------------------------------------+
 |              Aegis-PQC Pipeline                   |
 +---------------------------------------------------+
@@ -51,7 +50,7 @@ The system detects four classes of timing side-channel attacks with **100% accur
 |  +-- Detection Results -> Table 1                 |
 |                                                   |
 +---------------------------------------------------+
-\`\`\`
+```
 
 ---
 
@@ -95,7 +94,7 @@ The system detects four classes of timing side-channel attacks with **100% accur
 
 ## 🚀 Quick Start
 
-\`\`\`bash
+```bash
 # Clone
 git clone https://github.com/CHAITHANYAHEGDE/Aegis-PQC.git
 cd Aegis-PQC
@@ -103,11 +102,11 @@ cd Aegis-PQC
 # Run full pipeline
 chmod +x run_all.sh
 ./run_all.sh
-\`\`\`
+```
 
 ### Run Individual Modules:
 
-\`\`\`bash
+```bash
 # Module 1: Compile and run C++ Kyber engine
 g++ -std=c++20 -O2 -o module1_engine module1_engine.cpp
 ./module1_engine
@@ -117,13 +116,13 @@ python3 module2_pytorch_guard.py
 
 # Module 3: Run attack simulation benchmark
 python3 module3_attack_simulator.py
-\`\`\`
+```
 
 ---
 
 ## 📁 Project Structure
 
-\`\`\`
+```
 Aegis-PQC/
 |-- module1_engine.cpp          # C++20 Kyber-768 NTT Engine
 |-- module2_ai_guard.py         # Basic Z-score AI Guard (v1)
@@ -133,7 +132,7 @@ Aegis-PQC/
 |-- run_all.sh                  # Full pipeline execution script
 |-- timing_trace.txt            # C++ engine timing output
 +-- README.md                   # This file
-\`\`\`
+```
 
 ---
 
@@ -167,9 +166,3 @@ B.Tech CSE (Cybersecurity) — Manipal Institute of Technology, MAHE
 ## 📄 License
 
 This project is licensed under the MIT License.
-'''
-with open('README.md', 'w') as f:
-    f.write(content)
-print('README.md written successfully!')
-"
-
