@@ -1,10 +1,13 @@
-import torch
-import torch.nn as nn
-import numpy as np
-import random
 import os
+import random
 import subprocess
+
+import numpy as np
+import torch
+from torch import nn
+
 from module2_pytorch_guard import ExecutionAutoencoder
+
 
 def build_attack_vector(mean_t, std_t, attack_type):
     if attack_type == "constant":
@@ -22,6 +25,7 @@ def build_attack_vector(mean_t, std_t, attack_type):
     elif attack_type == "normal":
         vec = [random.gauss(0, 1) for _ in range(16)]
         return np.array(vec, dtype=np.float32)
+
 
 def hybrid_detect(model, input_vec, mse_threshold, var_threshold):
     """
@@ -43,6 +47,7 @@ def hybrid_detect(model, input_vec, mse_threshold, var_threshold):
 
     return is_attack, mse, variance, mse_flag, var_flag
 
+
 def run_benchmark():
     print("=" * 65)
     print("  Module 3 v3: Hybrid AI + Statistical Attack Detector")
@@ -52,7 +57,9 @@ def run_benchmark():
     print("[BASELINE] Collecting 100 normal execution timings...")
     timings = []
     for i in range(100):
-        subprocess.run(["./module1_engine"], capture_output=True, text=True)
+        subprocess.run(
+            ["./module1_engine"], capture_output=True, text=True, check=False
+        )
         if os.path.exists("timing_trace.txt"):
             with open("timing_trace.txt", "r") as f:
                 timings.append(float(f.read().strip()))
@@ -85,14 +92,18 @@ def run_benchmark():
 
     print(f"[CALIBRATION] MSE Threshold (mean + 3σ):      {mse_threshold:.6f}")
     print(f"[CALIBRATION] Variance Threshold (mean - 3σ): {var_threshold:.6f}")
-    print(f"[CALIBRATION] Normal Variance Range: [{np.min(normal_var_list):.4f} — {np.max(normal_var_list):.4f}]\n")
+    print(
+        f"[CALIBRATION] Normal Variance Range: [{np.min(normal_var_list):.4f} — {np.max(normal_var_list):.4f}]\n"
+    )
 
     # Step 4: Test all attack types
     attack_types = ["constant", "bimodal", "drift", "spike"]
     n_trials = 50
 
     print("-" * 65)
-    print(f"{'Attack':<12} {'Detected':<10} {'Rate':<8} {'Avg MSE':<12} {'Avg Var':<12} {'Trigger'}")
+    print(
+        f"{'Attack':<12} {'Detected':<10} {'Rate':<8} {'Avg MSE':<12} {'Avg Var':<12} {'Trigger'}"
+    )
     print("-" * 65)
 
     results = {}
@@ -125,7 +136,9 @@ def run_benchmark():
         elif var_triggers > 0:
             trigger = "VAR"
         status = "🟢" if rate > 80 else "🟡" if rate > 50 else "🔴"
-        print(f"{attack:<12} {detected}/{n_trials:<8} {rate:.1f}%{'':>3} {np.mean(mse_list):<12.4f} {np.mean(var_list):<12.6f} {trigger} {status}")
+        print(
+            f"{attack:<12} {detected}/{n_trials:<8} {rate:.1f}%{'':>3} {np.mean(mse_list):<12.4f} {np.mean(var_list):<12.6f} {trigger} {status}"
+        )
         results[attack] = {"rate": rate}
 
     # Step 5: Normal traffic (false positive check)
@@ -140,18 +153,28 @@ def run_benchmark():
             false_positives += 1
 
     fp_rate = (false_positives / n_trials) * 100
-    print(f"{'NORMAL':<12} {false_positives}/{n_trials:<8} {fp_rate:.1f}% FP{'':>20} {'✅' if fp_rate < 10 else '⚠️'}")
+    print(
+        f"{'NORMAL':<12} {false_positives}/{n_trials:<8} {fp_rate:.1f}% FP{'':>20} {'✅' if fp_rate < 10 else '⚠️'}"
+    )
     print("-" * 65)
 
     # Step 6: Summary
-    avg_det = np.mean([r['rate'] for r in results.values()])
+    avg_det = np.mean([r["rate"] for r in results.values()])
     print(f"\n{'=' * 65}")
     print("  📊 DETECTION SUMMARY (IEEE Paper — Table 1)")
     print(f"{'=' * 65}")
-    print(f"  Constant (Cache-Timing):     {results['constant']['rate']:.1f}%  [Variance Monitor]")
-    print(f"  Bimodal (Power Analysis):    {results['bimodal']['rate']:.1f}%  [Autoencoder]")
-    print(f"  Drift (Spectre-Class):       {results['drift']['rate']:.1f}%  [Autoencoder]")
-    print(f"  Spike (Fault Injection):     {results['spike']['rate']:.1f}%  [Autoencoder]")
+    print(
+        f"  Constant (Cache-Timing):     {results['constant']['rate']:.1f}%  [Variance Monitor]"
+    )
+    print(
+        f"  Bimodal (Power Analysis):    {results['bimodal']['rate']:.1f}%  [Autoencoder]"
+    )
+    print(
+        f"  Drift (Spectre-Class):       {results['drift']['rate']:.1f}%  [Autoencoder]"
+    )
+    print(
+        f"  Spike (Fault Injection):     {results['spike']['rate']:.1f}%  [Autoencoder]"
+    )
     print(f"  False Positive Rate:         {fp_rate:.1f}%")
     print(f"\n  🎯 Average Detection Rate: {avg_det:.1f}%")
     print(f"  🛡️  False Positive Rate:   {fp_rate:.1f}%")
@@ -164,6 +187,6 @@ def run_benchmark():
     else:
         print("  🟡 VERDICT: Needs improvement")
 
+
 if __name__ == "__main__":
     run_benchmark()
-

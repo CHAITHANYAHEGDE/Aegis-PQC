@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegis_ml"
+version = "0.1.0"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "torch",
+    "matplotlib",
+    "seaborn",
+    "umap-learn",
+    "pytest",
+    "tensorboard"
+]
+
+[tool.setuptools]
+packages = ["aegis_ml"]
+[tool.ruff.lint]
+ignore = ["PLW0602", "BLE001", "RUF059", "F841"]
+
+[tool.ruff]
+exclude = ["liboqs_src", ".venv"]
+
+[tool.black]
+exclude = '''/(liboqs_src|\.venv|\.git)/'''

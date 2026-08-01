@@ -1,0 +1,9 @@
+numpy
+pandas
+scikit-learn
+torch
+matplotlib
+seaborn
+umap-learn
+pytest
+tensorboard

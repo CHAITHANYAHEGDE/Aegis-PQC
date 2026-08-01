@@ -1,0 +1,25 @@
+{
+    "algo": "ML-KEM-512",
+    "features": [
+        "context_switches",
+        "execution_time_us",
+        "max_rss_kb",
+        "synthetic_branch_proxy",
+        "synthetic_cache_proxy",
+        "attack_profile",
+        "is_anomaly",
+        "algorithm",
+        "timestamp"
+    ],
+    "random_seed": 42,
+    "train_samples": 1600,
+    "test_samples": 800,
+    "system_info": {
+        "os": "Darwin",
+        "os_release": "25.5.0",
+        "cpu": "arm",
+        "python_version": "3.9.6",
+        "git_commit": "bd52aa9cd720e7f8d9286c3daff6a06b9eda80ae"
+    },
+    "timestamp": "20260801_152742"
+}

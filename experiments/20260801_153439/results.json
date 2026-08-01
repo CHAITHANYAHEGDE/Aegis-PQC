@@ -1,0 +1,94 @@
+[
+    {
+        "model_name": "Isolation Forest",
+        "f1": 0.9937888198757764,
+        "mcc": 0.9875771574795099,
+        "roc_auc": 0.9986875,
+        "pr_auc": 0.9984405709485396,
+        "balanced_accuracy": 0.99375,
+        "precision": 0.9876543209876543,
+        "recall": 1.0,
+        "train_time_s": 0.11635899543762207,
+        "inference_time_s": 0.009211063385009766,
+        "model_size_bytes": 850129,
+        "confusion_matrix": [
+            [
+                395,
+                5
+            ],
+            [
+                0,
+                400
+            ]
+        ]
+    },
+    {
+        "model_name": "One-Class SVM",
+        "f1": 0.9937888198757764,
+        "mcc": 0.9875771574795099,
+        "roc_auc": 0.999475,
+        "pr_auc": 0.9994220212843294,
+        "balanced_accuracy": 0.99375,
+        "precision": 0.9876543209876543,
+        "recall": 1.0,
+        "train_time_s": 0.0011391639709472656,
+        "inference_time_s": 0.0016078948974609375,
+        "model_size_bytes": 4393,
+        "confusion_matrix": [
+            [
+                395,
+                5
+            ],
+            [
+                0,
+                400
+            ]
+        ]
+    },
+    {
+        "model_name": "Local Outlier Factor",
+        "f1": 0.9757343550446999,
+        "mcc": 0.9533613936575249,
+        "roc_auc": 0.99853125,
+        "pr_auc": 0.998309931559114,
+        "balanced_accuracy": 0.9762500000000001,
+        "precision": 0.9973890339425587,
+        "recall": 0.955,
+        "train_time_s": 0.02089095115661621,
+        "inference_time_s": 0.023658037185668945,
+        "model_size_bytes": 491125,
+        "confusion_matrix": [
+            [
+                399,
+                1
+            ],
+            [
+                18,
+                382
+            ]
+        ]
+    },
+    {
+        "model_name": "PyTorch Autoencoder",
+        "f1": 0.8679775280898876,
+        "mcc": 0.783621497958265,
+        "roc_auc": 0.9819206549118389,
+        "pr_auc": 0.9747875191469946,
+        "balanced_accuracy": 0.8824716624685138,
+        "precision": 0.9903846153846154,
+        "recall": 0.7725,
+        "train_time_s": 0.62689208984375,
+        "inference_time_s": 0.0007579326629638672,
+        "model_size_bytes": 257397,
+        "confusion_matrix": [
+            [
+                394,
+                3
+            ],
+            [
+                91,
+                309
+            ]
+        ]
+    }
+]

@@ -1,0 +1,90 @@
+[
+    {
+        "model_name": "Isolation Forest",
+        "f1": 0.9569377990430622,
+        "mcc": 0.9137080416200247,
+        "roc_auc": 1.0,
+        "pr_auc": 1.0,
+        "balanced_accuracy": 0.9550000000000001,
+        "precision": 0.9174311926605505,
+        "recall": 1.0,
+        "train_time_s": 0.05600571632385254,
+        "inference_time_s": 0.00511622428894043,
+        "confusion_matrix": [
+            [
+                364,
+                36
+            ],
+            [
+                0,
+                400
+            ]
+        ]
+    },
+    {
+        "model_name": "One-Class SVM",
+        "f1": 0.970873786407767,
+        "mcc": 0.9416965821485117,
+        "roc_auc": 1.0,
+        "pr_auc": 1.0,
+        "balanced_accuracy": 0.97,
+        "precision": 0.9433962264150944,
+        "recall": 1.0,
+        "train_time_s": 0.0057790279388427734,
+        "inference_time_s": 0.007498025894165039,
+        "confusion_matrix": [
+            [
+                376,
+                24
+            ],
+            [
+                0,
+                400
+            ]
+        ]
+    },
+    {
+        "model_name": "Local Outlier Factor",
+        "f1": 0.9523809523809523,
+        "mcc": 0.9045340337332908,
+        "roc_auc": 1.0,
+        "pr_auc": 1.0,
+        "balanced_accuracy": 0.95,
+        "precision": 0.9090909090909091,
+        "recall": 1.0,
+        "train_time_s": 0.006587982177734375,
+        "inference_time_s": 0.005594015121459961,
+        "confusion_matrix": [
+            [
+                360,
+                40
+            ],
+            [
+                0,
+                400
+            ]
+        ]
+    },
+    {
+        "model_name": "PyTorch Autoencoder",
+        "f1": 0.6666666666666666,
+        "mcc": 0.5766244986083316,
+        "roc_auc": 0.993463476070529,
+        "pr_auc": 0.9937787407289318,
+        "balanced_accuracy": 0.75,
+        "precision": 1.0,
+        "recall": 0.5,
+        "train_time_s": 0.543816089630127,
+        "inference_time_s": 0.00043892860412597656,
+        "confusion_matrix": [
+            [
+                397,
+                0
+            ],
+            [
+                200,
+                200
+            ]
+        ]
+    }
+]

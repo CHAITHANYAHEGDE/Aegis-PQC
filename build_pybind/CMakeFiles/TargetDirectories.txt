@@ -1,0 +1,3 @@
+/Users/chaithanyahegde/pqc_ai_shield/build_pybind/CMakeFiles/aegis_engine.dir
+/Users/chaithanyahegde/pqc_ai_shield/build_pybind/CMakeFiles/edit_cache.dir
+/Users/chaithanyahegde/pqc_ai_shield/build_pybind/CMakeFiles/rebuild_cache.dir

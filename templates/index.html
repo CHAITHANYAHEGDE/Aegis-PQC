@@ -4,9 +4,207 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aegis-PQC: Neural Side-Channel Guard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+  :root{
+    --navy: #050B18;
+    --navy-2: #081226;
+    --blue: #2F80FF;
+    --cyan: #00E5FF;
+    --glow: rgba(0,229,255,0.9);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0; width:100%; ;
+    background: radial-gradient(ellipse at 50% 40%, #0a1730 0%, #050B18 55%, #020509 100%);
+    overflow-x:hidden;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  #app{
+    position: fixed;
+    top: 0; left: 0;
+    width:100vw; height:100vh;
+    background: transparent;
+    z-index: 0;
+  }
+
+  canvas#scene{
+    position:fixed; top:0; left:0;
+    width:100%; ;
+    display:block;
+    cursor: grab;
+  }
+
+  .noise-veil{
+    position:fixed; inset:0;
+    pointer-events:none;
+    opacity:0.025;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .binary-field{
+    position:fixed; inset:0;
+    pointer-events:none;
+    overflow-x:hidden;
+    z-index:2;
+  }
+  .bit{
+    position:absolute;
+    color: rgba(120,180,255,0.35);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    animation-name: bitfade;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    user-select:none;
+    filter: blur(0.2px);
+  }
+  @keyframes bitfade{
+    0%   { opacity:0; transform: translateY(6px); }
+    45%  { opacity:0.55; transform: translateY(0px); }
+    100% { opacity:0; transform: translateY(-8px); }
+  }
+
+  .hero-ui{
+    position:relative; width:100%; height:100vh;
+    z-index:3;
+    pointer-events:none;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding: 48px 56px;
+  }
+
+  .brandrow{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    opacity:0.92;
+  }
+  .brandmark{
+    width:9px; height:9px;
+    border-radius:2px;
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    box-shadow: 0 0 12px var(--glow);
+    transform: rotate(45deg);
+  }
+  .brandword{
+    font-size:13px;
+    letter-spacing:0.28em;
+    font-weight:500;
+    color: #cfe4ff;
+    text-transform:uppercase;
+  }
+
+  .center-copy{
+    align-self:center;
+    text-align:center;
+    max-width: 620px;
+    margin: 0 auto;
+    transform: translateY(-6vh);
+    position: relative;
+    z-index: 10;
+  }
+  .center-copy::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200%; height: 250%;
+    background: radial-gradient(ellipse 60% 70% at center, rgba(3,8,18,0.75) 0%, rgba(3,8,18,0.4) 50%, transparent 75%);
+    z-index: -1;
+    pointer-events: none;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    color: rgba(140,190,255,0.65);
+    margin-bottom:18px;
+  }
+  .headline{
+    font-size: clamp(28px, 4vw, 46px);
+    line-height:1.15;
+    font-weight:500;
+    color: #ffffff;
+    margin:0 0 16px 0;
+    letter-spacing:-0.01em;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.9);
+    transform: translateZ(0);
+  }
+  .headline b{
+    font-weight:700;
+    background: linear-gradient(90deg, #ffffff, var(--cyan));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow: none;
+  }
+  .subline{
+    font-size:14.5px;
+    line-height:1.6;
+    color: rgba(180,205,235,0.85);
+    font-weight:400;
+    max-width:440px;
+    margin:0 auto;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.9);
+  }
+
+  .bottom-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+  }
+  .hint{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    color: rgba(150,190,235,0.4);
+  }
+  .hint span{ color: rgba(0,229,255,0.55); }
+
+  .stat{
+    text-align:right;
+    font-family:'JetBrains Mono', monospace;
+    color: rgba(150,190,235,0.55);
+    font-size:10.5px;
+    letter-spacing:0.08em;
+  }
+  .stat b{
+    display:block;
+    font-size:15px;
+    color: #d9ecff;
+    font-weight:500;
+    letter-spacing:0;
+    margin-top:2px;
+  }
+
+  .vignette{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:1;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(2,5,10,0.65) 100%);
+  }
+
+  @media (max-width: 720px){
+    .hero-ui{ padding: 28px 22px; }
+    .subline{ display:none; }
+    .stat{ display:none; }
+  }
+
+        
         :root {
             --bg-base: #030308;
             --bg-surface: rgba(8, 9, 18, 0.7);
@@ -25,18 +223,7 @@
             box-sizing: border-box;
         }
 
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            position: relative;
-            background-image: radial-gradient(circle at 50% 0%, #0d0c1c 0%, var(--bg-base) 80%);
-            letter-spacing: -0.01em;
-        }
+        
 
         /* 3D Glass Shield Brand Area Styles */
         .header-glow {
@@ -78,15 +265,7 @@
             perspective: 800px;
         }
 
-        .shield-3d-body {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transform: rotateY(0deg) rotateX(10deg);
-            animation: idle-spin 15s infinite linear;
-            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-        }
+        .shield-3d-
 
         @keyframes idle-spin {
             0% { transform: rotateY(0deg) rotateX(10deg) rotateZ(0deg); }
@@ -161,20 +340,71 @@
             letter-spacing: 0.08em;
         }
 
-        main {
-            flex: 1;
-            max-width: 1440px;
+        #dashboard-main {
+            background: transparent;
+            min-height: 100vh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+            overflow: hidden;
+            clip-path: inset(0);
+        }
+
+        #dashboard-ambient {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            transition: background 1s ease;
+        }
+        #dashboard-ambient.state-alert {
+            /* Handled by Three.js material color shift */
+        }
+
+        #sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 3.5rem;
+            display: flex;
+            z-index: 1000;
+            transition: background 0.4s ease, border-bottom 0.4s ease, backdrop-filter 0.4s ease;
+            pointer-events: none;
+            border-bottom: 1px solid transparent;
+        }
+        #sticky-nav > * {
+            pointer-events: auto;
+        }
+        #sticky-nav.scrolled {
+            background: rgba(3, 5, 12, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .dashboard-content-wrapper {
+            max-width: 1500px;
             width: 100%;
             margin: 0 auto;
             padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 2.5rem;
-            z-index: 1;
+            width: 100%;
+            position: relative;
         }
 
         @media (min-width: 1024px) {
-            main {
+            .dashboard-grid {
                 grid-template-columns: 2fr 1fr;
             }
         }
@@ -193,9 +423,9 @@
 
         /* Argus Glass Panel Cards */
         .card {
-            background: var(--bg-surface);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            background: rgba(10, 16, 30, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 1.25rem; /* 20px */
             padding: 2rem;
@@ -203,9 +433,10 @@
                 0 25px 60px rgba(0, 0, 0, 0.55), 
                 inset 1px 1px 0 rgba(99, 102, 241, 0.2), 
                 inset -1px -1px 0 rgba(255, 255, 255, 0.02);
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
-            opacity: 0;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 1;
             animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform-origin: center center;
         }
 
         .card:hover {
@@ -214,6 +445,7 @@
                 0 35px 70px rgba(0, 0, 0, 0.65), 
                 inset 1.5px 1.5px 0 rgba(99, 102, 241, 0.35), 
                 inset -1.5px -1.5px 0 rgba(255, 255, 255, 0.03);
+            transform: translateY(-4px);
         }
 
         @keyframes scaleIn {
@@ -279,6 +511,26 @@
             font-size: 1.95rem;
             font-weight: 800;
             letter-spacing: -0.04em;
+            color: #eef5ff;
+        }
+
+        .system-state-panel {
+            margin-bottom: 1.5rem;
+        }
+        
+        .system-state-panel .stat-label { 
+            font-size: 0.8rem; 
+            letter-spacing: 0.12em; 
+            color: var(--text-secondary);
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        
+        .system-state-panel .stat-value { 
+            font-size: 3.5rem; 
+            text-transform: uppercase; 
+            color: #eef5ff; 
+            letter-spacing: -0.02em;
         }
 
         /* Light source colored indicators */
@@ -312,47 +564,28 @@
         }
 
         .btn {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%),
-                        linear-gradient(135deg, #2563eb, #0f172a);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background-color: #2F80FF;
+            color: #ffffff;
+            border: none;
             padding: 1rem 1.75rem;
-            border-radius: 9999px; /* pill button */
-            font-weight: 700;
-            font-size: 0.88rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.95rem;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex;
+            transition: background-color 0.2s ease;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            box-shadow: 
-                0 4px 15px rgba(37, 99, 235, 0.25), 
-                inset 0 1px 0 rgba(255, 255, 255, 0.25);
             position: relative;
             overflow: hidden;
             outline: none;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 35%;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
-            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
-            pointer-events: none;
+            box-shadow: none;
         }
 
         .btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 
-                0 8px 25px rgba(37, 99, 235, 0.5), 
-                inset 0 1px 0 rgba(255, 255, 255, 0.35);
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 50%),
-                        linear-gradient(135deg, #3b82f6, #0f172a);
+            background: #1a60cc;
         }
 
         .btn:active:not(:disabled) {
@@ -362,69 +595,146 @@
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            box-shadow: none;
         }
 
         .btn-warning {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%),
-                        linear-gradient(135deg, #ea580c, #4c1d05);
+            background: #ea580c;
             border: 1px solid rgba(234, 88, 12, 0.4);
-            color: #ffaa7a;
-            box-shadow: 0 4px 15px rgba(234, 88, 12, 0.15);
-        }
-
-        .btn-warning::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 35%;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
-            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
-            pointer-events: none;
+            color: white;
         }
 
         .btn-warning:hover:not(:disabled) {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 50%),
-                        linear-gradient(135deg, #f97316, #4c1d05);
+            background: #c2410c;
             color: white;
-            box-shadow: 0 8px 25px rgba(234, 88, 12, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.15);
         }
 
         .btn-secondary {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 50%),
-                        rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: none;
             color: var(--text-primary);
         }
 
         .btn-secondary:hover:not(:disabled) {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 50%),
-                        rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05);
         }
 
-        .select-input {
-            background: rgba(4, 5, 10, 0.85);
-            border: 1px solid var(--border-glass);
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            font-weight: 600;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: white;
+            transform: translateY(0);
+        }
+
+        .btn-enterprise {
+            background-color: #2F80FF;
+            color: #ffffff;
+            border: none;
+            padding: 0.85rem 1.6rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-enterprise:hover {
+            background-color: #1a60cc;
+        }
+
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+        
+        .scroll-cue {
+            animation: bounce-subtle 2s infinite ease-in-out;
+            color: rgba(140,190,255,0.4);
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+        .scroll-cue:hover {
+            color: rgba(140,190,255,0.8);
+        }
+
+        /* Custom Select component */
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .custom-select-trigger {
+            background: rgba(20, 32, 58, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             color: var(--text-primary);
             padding: 0.95rem 1.25rem;
-            border-radius: 0.75rem;
+            border-radius: 8px;
             font-weight: 500;
-            width: 100%;
-            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             cursor: pointer;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
             transition: border-color 0.3s ease;
         }
-
-        .select-input:focus {
-            border-color: rgba(99, 102, 241, 0.5);
+        .custom-select-trigger:hover, .custom-select-wrapper.open .custom-select-trigger {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .custom-select-value {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .custom-select-options {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: rgba(14, 21, 38, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 50;
+            display: none;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .custom-select-wrapper.open .custom-select-options {
+            display: block;
+        }
+        .custom-select-option {
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: background 0.2s, color 0.2s;
+        }
+        .custom-select-option:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        .spark-icon {
+            color: #818cf8;
+            opacity: 0.8;
+            width: 16px;
+            height: 16px;
+        }
+        .chevron {
+            color: var(--text-secondary);
+            transition: transform 0.3s;
+        }
+        .custom-select-wrapper.open .chevron {
+            transform: rotate(180deg);
         }
 
         /* Glassmorphic Console with colored left accent borders */
@@ -491,58 +801,158 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .pulse-dot { 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%; 
+            box-shadow: 0 0 8px currentColor; 
+            flex-shrink: 0; 
+        }
+        .pulse-dot.safe { 
+            color: var(--accent-green); 
+            background: var(--accent-green); 
+            animation: pulse-slow 3s infinite; 
+        }
+        .pulse-dot.alert { 
+            color: var(--accent-orange); 
+            background: var(--accent-orange); 
+            animation: pulse-fast 0.5s infinite; 
+        }
+        @keyframes pulse-slow { 
+            0%, 100% { opacity: 0.5; transform: scale(1); } 
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 12px currentColor; } 
+        }
+        @keyframes pulse-fast { 
+            0%, 100% { opacity: 0.8; transform: scale(1); } 
+            50% { opacity: 1; transform: scale(1.5); box-shadow: 0 0 16px currentColor; } 
+        }
+
+        .attack-pulse-beam {
+            position: absolute;
+            top: 50%;
+            width: 150px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-orange), white);
+            box-shadow: 0 0 20px var(--accent-orange);
+            border-radius: 4px;
+            z-index: 50;
+            pointer-events: none;
+            animation: shoot-beam 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes shoot-beam {
+            0% { right: 0; transform: translate(0, -50%) scaleX(0); opacity: 0; }
+            50% { right: 50%; transform: translate(50%, -50%) scaleX(1); opacity: 1; }
+            100% { right: 100%; transform: translate(100%, -50%) scaleX(0); opacity: 0; }
+        }
+    
+        
+        /* Removed duplicate main selector */
     </style>
 </head>
 <body>
-
-    <!-- Cinematic lighting glow source behind the shield -->
-    <div class="header-glow"></div>
-
-    <header>
-        <div class="logo-container">
-            <!-- 3D Glass Shield Object -->
-            <div class="shield-3d-wrapper" id="hero-shield">
-                <div class="shield-rim-glow"></div>
-                <div class="shield-3d-body">
-                    <div class="shield-layer layer-back"></div>
-                    <div class="shield-layer layer-mid"></div>
-                    <div class="shield-layer layer-front"></div>
-                </div>
-            </div>
-            <div style="display: flex; flex-direction: column;">
-                <span class="logo-text">Aegis-PQC</span>
-                <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Neural Intrusion Shield</span>
-            </div>
+    <nav id="sticky-nav">
+        <div class="brandrow" style="cursor: pointer; margin: 0; pointer-events: auto;" onclick="scrollToTop()">
+            <div class="brandmark"></div>
+            <div class="brandword">Aegis&nbsp;PQC</div>
         </div>
-        <div class="logo-container" style="gap: 1rem;">
-            <span class="badge">NIST Kyber-768</span>
-            <span class="badge" style="border-color: rgba(99, 102, 241, 0.2); color: #a5b4fc; background: rgba(99, 102, 241, 0.02);">Argus Protocol</span>
-        </div>
-    </header>
+    </nav>
 
-    <main>
+    <div id="app">
+        
+  <canvas id="scene"></canvas>
+  <div class="vignette"></div>
+  <div class="noise-veil"></div>
+  <div class="binary-field" id="binaryField"></div>
+
+  </div>
+
+  <div class="hero-ui" id="hero-ui" style="position: relative; height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 2.5rem 3.5rem; pointer-events: none; z-index: 5;">
+    <div class="center-copy" style="pointer-events: auto; margin-top: 15vh;">
+      <div class="eyebrow">Lattice-Based · Post-Quantum</div>
+      <h1 class="headline">Module-LWE key encapsulation,<br/>standardized for the post-quantum era.</h1>
+      <p class="subline">Every node you see is re-deriving its position from a lattice problem quantum computers can't shortcut. Hover to raise the shield.</p>
+      
+      <div style="margin-top: 3rem; display: flex; flex-direction: column; align-items: center;">
+          <button class="btn-enterprise" onclick="openDashboard()">
+              View system telemetry &rarr;
+          </button>
+          
+          <div class="scroll-cue" onclick="openDashboard()" style="cursor: pointer; transition: color 0.3s;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+          </div>
+      </div>
+    </div>
+
+    <div class="bottom-row" style="position: absolute; bottom: 2.5rem; left: 3.5rem; right: 3.5rem;">
+      <div class="hint">HOVER <span>· raise shield</span> &nbsp;/&nbsp; CLICK <span>· pulse lattice</span></div>
+      <div class="stat">LATTICE DIMENSION<b>n = 512</b></div>
+    </div>
+  </div>
+    
+  <div id="dashboard-main">
+    <div id="dashboard-ambient" class="state-safe"></div>
+    <div class="dashboard-content-wrapper" style="position: relative; z-index: 1;">
+        
+        <div class="dashboard-grid">
         <div class="dashboard-left">
             <!-- Stats -->
             <div class="card">
                 <div class="card-title">Telemetry & Intrusion Status</div>
-                <div class="stats-grid">
-                    <div class="stat-card">
+                
+                <div class="system-state-panel">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div id="composite-pulse" class="pulse-dot safe"></div>
                         <span class="stat-label">SYSTEM STATE</span>
-                        <span id="sys-status" class="stat-value status-safe">SAFE</span>
                     </div>
+                    <span id="sys-status" class="stat-value status-safe">SAFE</span>
+                    <div style="display: flex; gap: 2rem; margin-top: 1rem;">
+                        <div>
+                            <div style="font-size: 0.6rem; color: #8e939e; letter-spacing: 0.1em; font-weight: 800;">THREAT LEVEL</div>
+                            <div id="threat-level-val" style="font-size: 1.2rem; color: #10b981; font-weight: 800;">LOW</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.6rem; color: #8e939e; letter-spacing: 0.1em; font-weight: 800;">MITIGATION ACTION</div>
+                            <div id="mitigation-action-val" style="font-size: 1.2rem; color: #8e939e; font-weight: 800;">NONE</div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="stats-grid">
                     <div class="stat-card">
                         <span class="stat-label">LATEST TIMING</span>
                         <span id="timing-val" class="stat-value">--- µs</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">MODEL LOSS (MSE)</span>
-                        <span id="mse-val" class="stat-value">---</span>
+                        <span class="stat-label">ANOMALY SCORE</span>
+                        <span id="score-val" class="stat-value">---</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">MSE THRESHOLD</span>
-                        <span id="mse-threshold-val" class="stat-value" style="color: #818cf8;">---</span>
+                        <span class="stat-label">ACTIVE MODEL</span>
+                        <span id="active-model-val" class="stat-value" style="color: #818cf8;">Loading...</span>
                     </div>
                 </div>
+
+                    <div class="stat-card">
+                        <span class="stat-label">DETECTION LATENCY</span>
+                        <span id="latency-ml-val" class="stat-value">--- ms</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">MITIGATION LATENCY</span>
+                        <span id="latency-mitigation-val" class="stat-value">--- ms</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">TOTAL LATENCY</span>
+                        <span id="latency-total-val" class="stat-value">--- ms</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">MITIGATIONS / FALSE MIT.</span>
+                        <span id="mitigation-count-val" class="stat-value">0 / 0</span>
+                    </div>
+
             </div>
 
             <!-- Timing Chart -->
@@ -555,31 +965,104 @@
         </div>
 
         <div class="dashboard-right">
-            <!-- Command Center -->
+            <!-- Active Defense -->
+
+            <div class="card">
+                <div class="card-title">Active Response Policies</div>
+                <div class="action-group">
+                    <label style="display:flex; align-items:center; gap: 0.5rem; color: white;">
+                        <input type="checkbox" id="toggle-random-delay" checked onchange="updateDefenseConfig()"> Randomized Delay
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 0.5rem; color: white;">
+                        <input type="checkbox" id="toggle-throttling" checked onchange="updateDefenseConfig()"> Request Throttling
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 0.5rem; color: white;">
+                        <input type="checkbox" id="toggle-forensic-logger" checked onchange="updateDefenseConfig()"> Forensic Logging
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 0.5rem; color: white;">
+                        <input type="checkbox" id="toggle-alerting" checked onchange="updateDefenseConfig()"> Alert Generation
+                    </label>
+                    <label style="display:flex; align-items:center; gap: 0.5rem; color: white;">
+                        <input type="checkbox" id="toggle-key-rotation" checked onchange="updateDefenseConfig()"> Key Rotation (Stub)
+                    </label>
+                    <button class="btn btn-outline" style="margin-top:1rem;" onclick="window.open('/api/defense/logs', '_blank')">
+                        View Forensic Defense Logs
+                    </button>
+                </div>
+            </div>
+
+            <!-- Command Center & Simulator Panel -->
             <div class="card">
                 <div class="card-title">Command Center</div>
                 <div class="action-group">
                     <button class="btn" id="btn-normal" onclick="runNormal()">
-                        ⚡ Run Normal Execution
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                        Run Normal Execution
                     </button>
                     
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); margin: 0.5rem 0;"></div>
+                    <div class="custom-select-wrapper" id="model-select-wrapper">
+                        <div class="custom-select-trigger" onclick="document.getElementById('model-select-wrapper').classList.toggle('open')">
+                            <span class="custom-select-value" id="model-select-value">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                                Select ML Model
+                            </span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="custom-select-options" id="model-select-options">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
                     
-                    <label class="stat-label">SIMULATE ATTACK VECTOR</label>
-                    <select class="select-input" id="attack-select">
-                        <option value="constant">Constant timing (Cache Leak)</option>
-                        <option value="bimodal">Bimodal timing (Power Analysis)</option>
-                        <option value="drift">Timing Drift (Spectre Execution)</option>
-                        <option value="spike">Fault Injection Spike</option>
-                    </select>
-                    
-                    <button class="btn btn-warning" id="btn-attack" onclick="simulateAttack()">
-                        ⚠️ Trigger Timing Intrusion
+                    <div style="display: flex; gap: 0.5rem; width: 100%;">
+                        <button class="btn btn-outline" style="flex: 1;" onclick="window.location.href='/api/export/csv'">
+                            Export CSV
+                        </button>
+                        <button class="btn btn-outline" style="flex: 1;" onclick="window.location.href='/api/export/json'">
+                            Export JSON
+                        </button>
+                    </div>
+                </div>
+
+                <div style="height: 1px; background: rgba(255,255,255,0.08); margin: 2rem 0;"></div>
+
+                <div class="card-title">Simulate Attack Vector</div>
+                <div class="action-group">
+                    <div class="custom-select-wrapper" id="custom-attack-select">
+                        <div class="custom-select-trigger" onclick="document.getElementById('custom-attack-select').classList.toggle('open')">
+                            <span class="custom-select-value" id="attack-select-value">
+                                <svg class="spark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                                Constant timing (Cache Leak)
+                            </span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-select-option" onclick="setAttackOption('constant', 'Constant timing (Cache Leak)', '<svg class=\'spark-icon\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><line x1=\'2\' y1=\'12\' x2=\'22\' y2=\'12\'></line></svg>')">
+                                <svg class="spark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                                Constant timing (Cache Leak)
+                            </div>
+                            <div class="custom-select-option" onclick="setAttackOption('bimodal', 'Bimodal (Power Analysis)', '<svg class=\'spark-icon\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M2 18 C 5 18 6 6 9 6 C 12 6 13 18 15 18 C 18 18 19 6 22 6\'></path></svg>')">
+                                <svg class="spark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 18 C 5 18 6 6 9 6 C 12 6 13 18 15 18 C 18 18 19 6 22 6"></path></svg>
+                                Bimodal (Power Analysis)
+                            </div>
+                            <div class="custom-select-option" onclick="setAttackOption('drift', 'Drift (Spectre)', '<svg class=\'spark-icon\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><polyline points=\'2 20 22 4\'></polyline></svg>')">
+                                <svg class="spark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2 20 22 4"></polyline></svg>
+                                Drift (Spectre)
+                            </div>
+                            <div class="custom-select-option" onclick="setAttackOption('spike', 'Spike (Fault Injection)', '<svg class=\'spark-icon\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><polyline points=\'2 18 10 18 12 4 14 18 22 18\'></polyline></svg>')">
+                                <svg class="spark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2 18 10 18 12 4 14 18 22 18"></polyline></svg>
+                                Spike (Fault Injection)
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="attack-select" value="constant">
+
+                    <button class="btn btn-warning" id="btn-attack" onclick="triggerAttackPulse()">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div>⚠️ Trigger Timing Intrusion</div>
+                            <div style="font-size: 0.65rem; opacity: 0.8; font-weight: 500; margin-top: 0.15rem; text-transform: none; letter-spacing: 0;">simulates a real attack vector</div>
+                        </div>
                     </button>
-
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); margin: 0.5rem 0;"></div>
-
-                    <button class="btn btn-secondary" id="btn-retrain" onclick="retrainModel()">
+                    <button class="btn btn-outline" id="btn-retrain" onclick="retrainModel()">
                         🔄 Retrain PyTorch Autoencoder
                     </button>
                 </div>
@@ -593,33 +1076,500 @@
                 </div>
             </div>
         </div>
-    </main>
+    
+        </div>
+    </div>
 
+    <footer style="
+        font-family: 'JetBrains Mono', monospace; 
+        font-size: 11px; 
+        letter-spacing: 0.06em; 
+        color: rgba(150,190,235,0.4);
+        border-top: 1px solid rgba(90,150,230,0.15);
+        text-align: center;
+        padding: 48px 0;
+        margin-top: 2.5rem;
+        z-index: 10;
+        position: relative;">
+        AEGIS PQC · Post-Quantum Cryptography Platform<br>Designed &amp; Engineered by Chaithanya R Hegde
+    </footer>
+
+    </div>
+    
     <script>
+        
+(function(){
+
+  // ---------- binary field (HTML overlay) ----------
+  const binaryField = document.getElementById('binaryField');
+  const BIT_COUNT = 34;
+  for(let i=0;i<BIT_COUNT;i++){
+    const el = document.createElement('div');
+    el.className = 'bit';
+    el.textContent = Math.random() > 0.5 ? '1' : '0';
+    const edge = Math.random();
+    let x, y;
+    // keep bits toward the edges, sparser in the center where the object lives
+    if(edge < 0.5){
+      x = Math.random() * 100;
+      y = Math.random() * 32;
+    } else {
+      x = Math.random() * 100;
+      y = 68 + Math.random() * 32;
+    }
+    el.style.left = x + 'vw';
+    el.style.top = y + 'vh';
+    el.style.animationDuration = (3 + Math.random()*4) + 's';
+    el.style.animationDelay = (Math.random()*6) + 's';
+    binaryField.appendChild(el);
+  }
+
+  // ---------- three.js setup ----------
+  const canvas = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x050B18, 0.028);
+
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 200);
+  camera.position.set(0, 0, 13);
+
+  const clock = new THREE.Clock();
+
+  // ---------- glow sprite texture ----------
+  function makeGlowTexture(hex){
+    const size = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const grd = ctx.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
+    grd.addColorStop(0, hex + 'ff');
+    grd.addColorStop(0.25, hex + 'cc');
+    grd.addColorStop(0.6, hex + '33');
+    grd.addColorStop(1, hex + '00');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0,0,size,size);
+    const tex = new THREE.CanvasTexture(c);
+    return tex;
+  }
+  const glowTexCyan = makeGlowTexture('#00E5FF');
+  const glowTexBlue = makeGlowTexture('#2F80FF');
+  const glowTexWhite = makeGlowTexture('#FFFFFF');
+
+  // ================= BACKGROUND =================
+
+  // starfield
+  const starGeo = new THREE.BufferGeometry();
+  const STAR_COUNT = 1800;
+  const starPos = new Float32Array(STAR_COUNT * 3);
+  for(let i=0;i<STAR_COUNT;i++){
+    const r = 60 + Math.random()*80;
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos((Math.random()*2)-1);
+    starPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    starPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+    starPos[i*3+2] = r * Math.cos(phi);
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const starMat = new THREE.PointsMaterial({
+    size: 0.22, map: glowTexWhite, transparent:true, opacity:0.55,
+    blending: THREE.AdditiveBlending, depthWrite:false
+  });
+  const stars = new THREE.Points(starGeo, starMat);
+  scene.add(stars);
+
+  // faint constellation lines among a subset of near stars
+  const constGeo = new THREE.BufferGeometry();
+  const constPts = [];
+  const nearIdx = [];
+  for(let i=0;i<STAR_COUNT;i++){
+    const x = starPos[i*3], y = starPos[i*3+1], z = starPos[i*3+2];
+    if (x*x+y*y+z*z < 60*60) nearIdx.push(i);
+  }
+  for(let a=0; a<nearIdx.length; a++){
+    for(let b=a+1; b<nearIdx.length; b++){
+      const i = nearIdx[a]*3, j = nearIdx[b]*3;
+      const dx = starPos[i]-starPos[j], dy = starPos[i+1]-starPos[j+1], dz = starPos[i+2]-starPos[j+2];
+      const d = dx*dx+dy*dy+dz*dz;
+      if(d < 30 && Math.random() < 0.15){
+        constPts.push(starPos[i],starPos[i+1],starPos[i+2], starPos[j],starPos[j+1],starPos[j+2]);
+      }
+    }
+  }
+  constGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(constPts), 3));
+  const constMat = new THREE.LineBasicMaterial({ color:0x2F80FF, transparent:true, opacity:0.12, blending: THREE.AdditiveBlending });
+  scene.add(new THREE.LineSegments(constGeo, constMat));
+
+  // ambient drifting quantum particles
+  const driftGeo = new THREE.BufferGeometry();
+  const DRIFT_COUNT = 260;
+  const driftPos = new Float32Array(DRIFT_COUNT*3);
+  const driftSpeed = new Float32Array(DRIFT_COUNT);
+  for(let i=0;i<DRIFT_COUNT;i++){
+    driftPos[i*3]   = (Math.random()-0.5)*40;
+    driftPos[i*3+1] = (Math.random()-0.5)*24;
+    driftPos[i*3+2] = (Math.random()-0.5)*30;
+    driftSpeed[i] = 0.15 + Math.random()*0.35;
+  }
+  driftGeo.setAttribute('position', new THREE.BufferAttribute(driftPos, 3));
+  const driftMat = new THREE.PointsMaterial({
+    size:0.16, map: glowTexCyan, transparent:true, opacity:0.5,
+    blending:THREE.AdditiveBlending, depthWrite:false
+  });
+  const drift = new THREE.Points(driftGeo, driftMat);
+  scene.add(drift);
+
+  // ================= THE LATTICE (centerpiece) =================
+
+  const latticeGroup = new THREE.Group();
+  scene.add(latticeGroup);
+
+  const DETAIL = 3;
+  const RADIUS = 2.6;
+  const icoGeo = new THREE.IcosahedronGeometry(RADIUS, DETAIL);
+  const basePositions = icoGeo.attributes.position.array.slice(); // original, for noise reference
+  const vertCount = icoGeo.attributes.position.count;
+
+  // per-vertex random phase/freq for organic node motion
+  const nodePhase = new Float32Array(vertCount);
+  const nodeFreq = new Float32Array(vertCount);
+  for(let i=0;i<vertCount;i++){
+    nodePhase[i] = Math.random()*Math.PI*2;
+    nodeFreq[i] = 0.15 + Math.random()*0.25;
+  }
+
+  const edgesGeo = new THREE.EdgesGeometry(icoGeo);
+  const latticeLineMat = new THREE.LineBasicMaterial({
+    color: 0x2F80FF, transparent:true, opacity:0.55, blending: THREE.AdditiveBlending
+  });
+  const latticeLines = new THREE.LineSegments(edgesGeo, latticeLineMat);
+  latticeGroup.add(latticeLines);
+
+  // glowing node sprites at each vertex
+  const nodesGroup = new THREE.Group();
+  const nodeSprites = [];
+  for(let i=0;i<vertCount;i++){
+    const mat = new THREE.SpriteMaterial({
+      map: Math.random() > 0.7 ? glowTexCyan : glowTexBlue,
+      transparent:true, opacity: 0.55 + Math.random()*0.35,
+      blending: THREE.AdditiveBlending, depthWrite:false
+    });
+    const spr = new THREE.Sprite(mat);
+    const s = 0.14 + Math.random()*0.1;
+    spr.scale.set(s,s,s);
+    spr.position.set(basePositions[i*3], basePositions[i*3+1], basePositions[i*3+2]);
+    nodesGroup.add(spr);
+    nodeSprites.push(spr);
+  }
+  latticeGroup.add(nodesGroup);
+
+  // quantum key core (inner glowing octahedron + light + sprite glow)
+  const coreGroup = new THREE.Group();
+  const coreGeo = new THREE.OctahedronGeometry(0.55, 0);
+  const coreMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff, transparent:true, opacity:0.9, wireframe:false
+  });
+  const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+  coreGroup.add(coreMesh);
+
+  const coreWireMat = new THREE.MeshBasicMaterial({ color:0x00E5FF, wireframe:true, transparent:true, opacity:0.6 });
+  const coreWire = new THREE.Mesh(new THREE.OctahedronGeometry(0.72, 0), coreWireMat);
+  coreGroup.add(coreWire);
+
+  const coreGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: glowTexCyan, transparent:true, opacity:0.8, blending: THREE.AdditiveBlending, depthWrite:false
+  }));
+  coreGlow.scale.set(2.4,2.4,2.4);
+  coreGroup.add(coreGlow);
+
+  const coreLight = new THREE.PointLight(0x00E5FF, 2.2, 12);
+  coreGroup.add(coreLight);
+
+  latticeGroup.add(coreGroup);
+
+  // soft ambient + rim light so the wireframe reads as dimensional
+  scene.add(new THREE.AmbientLight(0x1a2a4a, 0.6));
+  const rim = new THREE.DirectionalLight(0x2F80FF, 0.5);
+  rim.position.set(-6,4,6);
+  scene.add(rim);
+
+  // ---------- shield (forms on hover) ----------
+  const shieldGeo = new THREE.IcosahedronGeometry(RADIUS * 1.55, 2);
+  const shieldMat = new THREE.MeshBasicMaterial({
+    color: 0x00E5FF, transparent:true, opacity:0.0,
+    wireframe:true, blending: THREE.AdditiveBlending, depthWrite:false
+  });
+  const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+  latticeGroup.add(shieldMesh);
+
+  const shieldFillMat = new THREE.MeshBasicMaterial({
+    color: 0x2F80FF, transparent:true, opacity:0.0,
+    blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite:false
+  });
+  const shieldFill = new THREE.Mesh(new THREE.IcosahedronGeometry(RADIUS*1.5, 1), shieldFillMat);
+  latticeGroup.add(shieldFill);
+
+  let shieldTarget = 0; // 0 = hidden, 1 = fully raised
+  let shieldCurrent = 0;
+
+  // dissolve particles (burst when shield toggles)
+  const burstGeo = new THREE.BufferGeometry();
+  const BURST_MAX = 200;
+  const burstPos = new Float32Array(BURST_MAX*3);
+  const burstVel = new Float32Array(BURST_MAX*3);
+  const burstLife = new Float32Array(BURST_MAX);
+  for(let i=0;i<BURST_MAX;i++) burstLife[i] = 0;
+  burstGeo.setAttribute('position', new THREE.BufferAttribute(burstPos,3));
+  const burstMat = new THREE.PointsMaterial({
+    size:0.09, map: glowTexCyan, transparent:true, opacity:0.9,
+    blending: THREE.AdditiveBlending, depthWrite:false
+  });
+  const burstPoints = new THREE.Points(burstGeo, burstMat);
+  latticeGroup.add(burstPoints);
+  let burstCursor = 0;
+  function spawnBurst(n){
+    for(let k=0;k<n;k++){
+      const i = burstCursor % BURST_MAX;
+      burstCursor++;
+      const dir = new THREE.Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize();
+      const r = RADIUS * (1.4 + Math.random()*0.3);
+      burstPos[i*3]   = dir.x * r;
+      burstPos[i*3+1] = dir.y * r;
+      burstPos[i*3+2] = dir.z * r;
+      burstVel[i*3]   = dir.x * (0.4 + Math.random()*0.5);
+      burstVel[i*3+1] = dir.y * (0.4 + Math.random()*0.5);
+      burstVel[i*3+2] = dir.z * (0.4 + Math.random()*0.5);
+      burstLife[i] = 1.0;
+    }
+  }
+
+  // ---------- click shockwaves ----------
+  const shockwaves = []; // { mesh, age }
+  function spawnShockwave(){
+    const geo = new THREE.IcosahedronGeometry(0.3, 2);
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0x00E5FF, wireframe:true, transparent:true, opacity:0.8,
+      blending: THREE.AdditiveBlending, depthWrite:false
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    latticeGroup.add(mesh);
+    shockwaves.push({ mesh, age:0 });
+    // brief flash on core
+    coreLight.intensity = 4.5;
+  }
+
+  // ================= INTERACTION =================
+
+  let mouseX = 0, mouseY = 0;       // normalized -1..1
+  let targetTiltX = 0, targetTiltY = 0;
+  let hovering = false;
+
+  const raycaster = new THREE.Raycaster();
+  const hoverProxy = new THREE.Mesh(
+    new THREE.SphereGeometry(RADIUS * 1.6, 16, 16),
+    new THREE.MeshBasicMaterial({ visible:false })
+  );
+  latticeGroup.add(hoverProxy);
+
+  function onPointerMove(e){
+    const x = (e.clientX !== undefined) ? e.clientX : (e.touches && e.touches[0].clientX);
+    const y = (e.clientY !== undefined) ? e.clientY : (e.touches && e.touches[0].clientY);
+    if(x === undefined) return;
+    mouseX = (x / window.innerWidth) * 2 - 1;
+    mouseY = (y / window.innerHeight) * 2 - 1;
+    targetTiltY = mouseX * 0.35;
+    targetTiltX = -mouseY * 0.22;
+
+    raycaster.setFromCamera(new THREE.Vector2(mouseX, -mouseY), camera);
+    const hit = raycaster.intersectObject(hoverProxy).length > 0;
+    if(hit && !hovering){ hovering = true; shieldTarget = 1; }
+    if(!hit && hovering){ hovering = false; shieldTarget = 0; spawnBurst(60); }
+  }
+  window.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('touchmove', onPointerMove, {passive:true});
+
+  window.addEventListener('click', ()=> spawnShockwave());
+
+  window.addEventListener('resize', ()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // ================= ANIMATE =================
+
+  // Colors for ambient shift
+  const baseBlue = new THREE.Color(0x2F80FF);
+  const baseCyan = new THREE.Color(0x00E5FF);
+  const alertRed = new THREE.Color(0xef4444);
+  const alertOrange = new THREE.Color(0xf97316);
+
+  let currentTiltX = 0, currentTiltY = 0;
+
+  function animate(){
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    const dt = clock.getDelta();
+
+    // Scroll Progress
+    const scrollProgress = Math.min(1, window.scrollY / window.innerHeight);
+    scene.fog.density = 0.028 + (scrollProgress * 0.015);
+
+    // Color shifting based on alert state
+    const isAlert = document.getElementById('dashboard-ambient')?.classList.contains('state-alert');
+    const targetBlue = isAlert ? alertRed : baseBlue;
+    const targetCyan = isAlert ? alertOrange : baseCyan;
+    
+    latticeLineMat.color.lerp(targetBlue, 0.04);
+    constMat.color.lerp(targetBlue, 0.04);
+    shieldMat.color.lerp(targetBlue, 0.04);
+    shieldFillMat.color.lerp(targetBlue, 0.04);
+    coreWireMat.color.lerp(targetCyan, 0.04);
+    coreLight.color.lerp(targetCyan, 0.04);
+    driftMat.color.lerp(targetCyan, 0.04);
+    coreGlow.material.color.lerp(targetCyan, 0.04);
+    
+    for(let i=0; i<vertCount; i++){
+        nodeSprites[i].material.color.lerp(targetCyan, 0.04);
+    }
+
+    // slow autonomous rotation
+    latticeGroup.rotation.y = t * (Math.PI*2 / 26); // ~26s per revolution
+    latticeGroup.rotation.x = Math.sin(t*0.11) * 0.08;
+
+    // gentle levitation
+    latticeGroup.position.y = Math.sin(t*0.6) * 0.35;
+
+    // mouse parallax tilt (lerped)
+    currentTiltX += (targetTiltX - currentTiltX) * 0.04;
+    currentTiltY += (targetTiltY - currentTiltY) * 0.04;
+    latticeGroup.rotation.x += currentTiltX * 0.3;
+    latticeGroup.rotation.z = currentTiltY * 0.12;
+
+    // organic vertex wobble (nodes rearranging) + energy pulse traveling outward
+    const posAttr = icoGeo.attributes.position;
+    const pulsePhase = (t*0.5) % 1;
+    for(let i=0;i<vertCount;i++){
+      const bx = basePositions[i*3], by = basePositions[i*3+1], bz = basePositions[i*3+2];
+      const wob = Math.sin(t*nodeFreq[i]*3 + nodePhase[i]) * 0.06;
+      const scale = 1 + wob;
+      posAttr.array[i*3]   = bx*scale;
+      posAttr.array[i*3+1] = by*scale;
+      posAttr.array[i*3+2] = bz*scale;
+
+      const spr = nodeSprites[i];
+      spr.position.set(bx*scale, by*scale, bz*scale);
+
+      // traveling pulse: brighten nodes whose radial "phase" matches the pulse ring
+      const vertR = Math.sqrt(bx*bx+by*by+bz*bz) / RADIUS;
+      const dist = Math.abs(vertR - pulsePhase);
+      const pulseBoost = Math.max(0, 1 - dist*6) * 0.6;
+      spr.material.opacity = 0.4 + pulseBoost + Math.sin(t*2 + nodePhase[i])*0.08;
+    }
+    posAttr.needsUpdate = true;
+
+    // core pulse
+    const pulseScale = 1 + Math.sin(t*2.4)*0.12;
+    coreMesh.scale.setScalar(pulseScale);
+    coreWire.rotation.y = t * 0.6;
+    coreWire.rotation.x = t * 0.4;
+    coreGlow.material.opacity = 0.6 + Math.sin(t*2.4)*0.2;
+    coreLight.intensity += (2.2 - coreLight.intensity) * 0.05; // decay flash back to base
+
+    // shield lerp
+    shieldCurrent += (shieldTarget - shieldCurrent) * 0.06;
+    shieldMesh.material.opacity = shieldCurrent * 0.5;
+    shieldFill.material.opacity = shieldCurrent * 0.08;
+    const shieldScale = 0.85 + shieldCurrent*0.15 + Math.sin(t*1.5)*0.01*shieldCurrent;
+    shieldMesh.scale.setScalar(shieldScale);
+    shieldFill.scale.setScalar(shieldScale);
+    shieldMesh.rotation.y = -t * 0.05;
+
+    // dissolve burst particles
+    for(let i=0;i<BURST_MAX;i++){
+      if(burstLife[i] > 0){
+        burstPos[i*3]   += burstVel[i*3]*dt;
+        burstPos[i*3+1] += burstVel[i*3+1]*dt;
+        burstPos[i*3+2] += burstVel[i*3+2]*dt;
+        burstLife[i] -= dt*0.6;
+      }
+    }
+    burstGeo.attributes.position.needsUpdate = true;
+    burstMat.opacity = 0.9;
+
+    // shockwaves
+    for(let i=shockwaves.length-1;i>=0;i--){
+      const sw = shockwaves[i];
+      sw.age += dt;
+      const p = sw.age / 1.1;
+      sw.mesh.scale.setScalar(0.3 + p * RADIUS*2.2);
+      sw.mesh.material.opacity = Math.max(0, 0.8 * (1-p));
+      sw.mesh.rotation.y += dt*0.5;
+      if(p >= 1){
+        latticeGroup.remove(sw.mesh);
+        sw.mesh.geometry.dispose();
+        sw.mesh.material.dispose();
+        shockwaves.splice(i,1);
+      }
+    }
+
+    // background drift
+    drift.rotation.y = t * 0.01;
+    const dPos = driftGeo.attributes.position;
+    for(let i=0;i<DRIFT_COUNT;i++){
+      dPos.array[i*3+1] += driftSpeed[i]*dt*0.3;
+      if(dPos.array[i*3+1] > 14) dPos.array[i*3+1] = -14;
+    }
+    dPos.needsUpdate = true;
+    stars.rotation.y = t * 0.004;
+
+    // camera slow cinematic drift + scroll zoom out
+    const camR = 13 + (scrollProgress * 15);
+    camera.position.x = Math.sin(t*0.05) * 2.2;
+    camera.position.y = Math.sin(t*0.037) * 1.1 + (scrollProgress * 3);
+    camera.position.z = camR + Math.cos(t*0.05)*0.6;
+    camera.lookAt(0, (scrollProgress * 3), 0);
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+})();
+
+        
         let chart = null;
         let chartData = {
             labels: [],
             datasets: [
                 {
-                    label: 'Raw Timing (µs)',
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    label: 'Execution Latency (µs)',
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.15)',
                     data: [],
-                    borderWidth: 2.5,
-                    tension: 0.35,
-                    fill: true
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
                 },
                 {
-                    label: 'Mitigated Timing (µs)',
-                    borderColor: '#10b981',
-                    borderDash: [6, 4],
+                    label: 'Anomaly Score',
+                    borderColor: '#ef4444',
+                    borderDash: [5, 5],
+                    backgroundColor: 'transparent',
                     data: [],
-                    borderWidth: 2,
-                    tension: 0.35,
-                    fill: false
+                    borderWidth: 2.5,
+                    tension: 0.4,
+                    fill: false,
+                    yAxisID: 'y1'
                 }
             ]
         };
+
+        let globalRunCounter = 0;
+        let ws = null;
 
         // 3D Shield mouse reactive parallax tilt
         const wrapper = document.getElementById('hero-shield');
@@ -646,10 +1596,10 @@
             
             // Create vertical color gradient for raw timing area
             const gradientRaw = ctx.createLinearGradient(0, 0, 0, 300);
-            gradientRaw.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
-            gradientRaw.addColorStop(1, 'rgba(59, 130, 246, 0.00)');
+            gradientRaw.addColorStop(0, 'rgba(99, 102, 241, 0.35)');
+            gradientRaw.addColorStop(1, 'rgba(99, 102, 241, 0.00)');
             
-            chartData.datasets[0].backgroundColor = gradientRaw;
+            chartData.datasets[2].backgroundColor = gradientRaw;
             
             chart = new Chart(ctx, {
                 type: 'line',
@@ -663,17 +1613,27 @@
                     },
                     scales: {
                         y: {
-                            grid: { color: 'rgba(255, 255, 255, 0.03)' },
-                            ticks: { color: '#8e939e' }
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: { color: 'rgba(255, 255, 255, 0.02)' },
+                            ticks: { color: '#8e939e', padding: 10, font: { family: 'JetBrains Mono', size: 10 } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: '#ef4444', font: { family: 'JetBrains Mono', size: 10 } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#8e939e' }
+                            ticks: { color: '#8e939e', font: { family: 'JetBrains Mono', size: 10 } }
                         }
                     },
                     plugins: {
                         legend: {
-                            labels: { color: '#f3f4f6', font: { family: 'Inter', weight: '600' } }
+                            labels: { color: '#f3f4f6', font: { family: 'JetBrains Mono', size: 11 }, usePointStyle: true, pointStyle: 'line' }
                         },
                         tooltip: {
                             backgroundColor: 'rgba(8, 9, 18, 0.9)',
@@ -689,57 +1649,198 @@
             });
         }
 
-        // Fetch stats on load
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleTelemetryEvent(data);
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket disconnected. Reconnecting in 2s...");
+                setTimeout(connectWebSocket, 2000);
+            };
+        }
+
+        
+        let mitigationCount = 0;
+        let falseMitigationCount = 0;
+
+        async function loadDefenseConfig() {
+            try {
+                const res = await fetch('/api/defense/config');
+                const cfg = await res.json();
+                document.getElementById('toggle-random-delay').checked = cfg.randomized_delay;
+                document.getElementById('toggle-throttling').checked = cfg.throttling;
+                document.getElementById('toggle-forensic-logger').checked = cfg.forensic_logger;
+                document.getElementById('toggle-alerting').checked = cfg.alerting;
+                document.getElementById('toggle-key-rotation').checked = cfg.key_rotation;
+            } catch(e) {}
+        }
+        
+        async function updateDefenseConfig() {
+            const cfg = {
+                randomized_delay: document.getElementById('toggle-random-delay').checked,
+                throttling: document.getElementById('toggle-throttling').checked,
+                forensic_logger: document.getElementById('toggle-forensic-logger').checked,
+                alerting: document.getElementById('toggle-alerting').checked,
+                key_rotation: document.getElementById('toggle-key-rotation').checked
+            };
+            await fetch('/api/defense/config', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(cfg)
+            });
+        }
+
+        function handleTelemetryEvent(data) {
+            updateCards(data);
+            updateChart(data);
+            
+            const isAnomaly = data.predicted_status !== "Normal";
+            
+            if (data.performance) {
+                document.getElementById('latency-ml-val').innerText = (data.performance.ml_inference_latency_s * 1000).toFixed(2) + " ms";
+                document.getElementById('latency-total-val').innerText = (data.performance.total_latency_s * 1000).toFixed(2) + " ms";
+            }
+            if (data.defense) {
+                document.getElementById('latency-mitigation-val').innerText = (data.defense.mitigation_overhead_s * 1000).toFixed(2) + " ms";
+                document.getElementById('mitigation-action-val').innerText = data.defense.mitigation_action;
+                
+                if (data.defense.mitigation_action !== "Allow" && data.defense.mitigation_action !== "Enhanced Monitoring" && data.defense.mitigation_action !== "None") {
+                    mitigationCount++;
+                    if (!isAnomaly) {
+                        falseMitigationCount++;
+                    }
+                }
+                document.getElementById('mitigation-count-val').innerText = mitigationCount + " / " + falseMitigationCount;
+                
+                if (data.confidence < 30) {
+                    document.getElementById('threat-level-val').innerText = "LOW";
+                    document.getElementById('threat-level-val').style.color = "#10b981";
+                } else if (data.confidence < 60) {
+                    document.getElementById('threat-level-val').innerText = "MEDIUM";
+                    document.getElementById('threat-level-val').style.color = "#f97316";
+                } else if (data.confidence < 80) {
+                    document.getElementById('threat-level-val').innerText = "HIGH";
+                    document.getElementById('threat-level-val').style.color = "#ef4444";
+                } else {
+                    document.getElementById('threat-level-val').innerText = "CRITICAL";
+                    document.getElementById('threat-level-val').style.color = "#ef4444";
+                }
+            }
+            
+            const mitigationActionStr = data.defense ? " | Mitigation: " + data.defense.mitigation_action : "";
+
+            const timing = data.measured.execution_time_us;
+            const score = data.anomaly_score;
+            
+            if (isAnomaly) {
+                document.getElementById('dashboard-ambient').className = 'state-alert';
+                appendLog(`[ALERT] Anomaly Detected! Profile: ${data.attack_profile} | Score: ${score.toFixed(3)} | Confidence: ${data.confidence.toFixed(1)}%${mitigationActionStr}`, 'log-alert', true);
+            } else {
+                document.getElementById('dashboard-ambient').className = 'state-safe';
+                if (data.attack_profile !== "none") {
+                    appendLog(`[SAFE] Simulated attack cleared. Score: ${score.toFixed(3)}${mitigationActionStr}`, 'log-safe', false);
+                } else {
+                    appendLog(`[NORMAL] timing: ${timing.toFixed(3)} µs | Score: ${score.toFixed(3)} | Status: CLEAR${mitigationActionStr}`, 'log-safe', false);
+                }
+            }
+        }
+
         async function fetchStats() {
             try {
                 const res = await fetch('/api/stats');
+                await loadDefenseConfig();
                 const data = await res.json();
                 
-                document.getElementById('mse-threshold-val').textContent = data.mse_threshold.toFixed(4);
-                
-                // Update history chart
-                if (data.history && data.history.length > 0) {
-                    chartData.labels = data.history.map((_, i) => `Run ${i + 1}`);
-                    chartData.datasets[0].data = data.history.map(h => h.timing_us);
-                    chartData.datasets[1].data = data.history.map(h => h.mitigated_timing_us);
-                    chart.update();
-                }
+                document.getElementById('active-model-val').textContent = data.active_model;
+                populateModelSelector(data.available_models, data.active_model);
 
-                // Render logs
                 if (data.logs && data.logs.length > 0) {
-                    data.logs.forEach(log => appendLog(log, 'log-system'));
+                    data.logs.forEach(log => appendLog(log, 'log-system', false));
                 }
             } catch (err) {
                 console.error("Failed to load init stats", err);
             }
         }
 
-        function appendLog(text, className) {
-            const console = document.getElementById('console-output');
+        function populateModelSelector(models, activeModel) {
+            const container = document.getElementById('model-select-options');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            models.forEach(model => {
+                const opt = document.createElement('div');
+                opt.className = 'custom-select-option';
+                opt.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg> ${model}`;
+                opt.onclick = () => selectModel(model);
+                container.appendChild(opt);
+            });
+            
+            if (activeModel) {
+                document.getElementById('model-select-value').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg> ${activeModel}`;
+            }
+        }
+
+        async function selectModel(modelName) {
+            try {
+                const res = await fetch(`/api/model/select?model_name=${encodeURIComponent(modelName)}`, { method: 'POST' });
+                const r = await res.json();
+                if (r.status === "success") {
+                    document.getElementById('active-model-val').textContent = r.active_model;
+                    document.getElementById('model-select-value').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg> ${r.active_model}`;
+                    appendLog(`[SYSTEM] Switched active model to ${r.active_model}`, 'log-system', false);
+                    document.getElementById('model-select-wrapper').classList.remove('open');
+                }
+            } catch (err) {
+                console.error("Failed to select model", err);
+            }
+        }
+
+        function getSparklineSVG(isAnomaly) {
+            if (isAnomaly) {
+                return `<svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-right:8px; vertical-align:-2px; color:var(--accent-orange)"><path d="M0,6 L4,6 L8,1 L12,11 L16,6 L24,6"/></svg>`;
+            } else {
+                return `<svg width="24" height="12" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-right:8px; vertical-align:-2px; color:var(--accent-green)"><path d="M0,6 L24,6"/></svg>`;
+            }
+        }
+
+        function appendLog(text, className, isAnomaly = false) {
+            const consoleEl = document.getElementById('console-output');
             const entry = document.createElement('div');
             entry.className = `log-entry ${className}`;
-            entry.textContent = text;
-            console.appendChild(entry);
-            console.scrollTop = console.scrollHeight;
+            entry.innerHTML = `${getSparklineSVG(isAnomaly)}${text}`;
+            consoleEl.appendChild(entry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
         }
 
         async function runNormal() {
             const btn = document.getElementById('btn-normal');
             btn.disabled = true;
-            btn.innerHTML = `<span class="loader"></span> Simulating...`;
-
             try {
-                const res = await fetch('/api/run-normal', { method: 'POST' });
-                const r = await res.json();
-                
-                updateUI(r);
-                appendLog(`[NORMAL] timing: ${r.timing_us.toFixed(3)} µs | MSE: ${r.mse.toFixed(5)} | Status: CLEAR`, 'log-safe');
-            } catch (err) {
-                appendLog(`[ERROR] Execution failed`, 'log-alert');
+                await fetch('/api/run-normal', { method: 'POST' });
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = `⚡ Run Normal Execution`;
+                setTimeout(() => { btn.disabled = false; }, 500);
             }
+        }
+
+        function triggerAttackPulse() {
+            const btn = document.getElementById('btn-attack');
+            btn.disabled = true;
+            
+            const pulse = document.createElement('div');
+            pulse.className = 'attack-pulse-beam';
+            document.querySelector('.dashboard-grid').appendChild(pulse);
+            
+            setTimeout(() => {
+                pulse.remove();
+                simulateAttack();
+            }, 450);
         }
 
         async function simulateAttack() {
@@ -747,26 +1848,10 @@
             const select = document.getElementById('attack-select');
             const type = select.value;
 
-            btn.disabled = true;
-            btn.innerHTML = `<span class="loader"></span> Alerting...`;
-
             try {
-                const res = await fetch(`/api/simulate-attack?attack_type=${type}`, { method: 'POST' });
-                const r = await res.json();
-                
-                updateUI(r);
-                
-                if (r.is_anomaly) {
-                    appendLog(`[ALERT] timing anomalies detected! Reason: ${r.reason}`, 'log-alert');
-                    appendLog(`[MITIGATION] ${r.action_taken}`, 'log-warning');
-                } else {
-                    appendLog(`[SAFE] Simulated attack cleared. MSE: ${r.mse.toFixed(5)}`, 'log-safe');
-                }
-            } catch (err) {
-                appendLog(`[ERROR] Attack simulation failed`, 'log-alert');
+                await fetch(`/api/simulate-attack?attack_type=${type}`, { method: 'POST' });
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = `⚠️ Trigger Timing Intrusion`;
+                setTimeout(() => { btn.disabled = false; }, 500);
             }
         }
 
@@ -780,15 +1865,14 @@
                 const data = await res.json();
                 appendLog(`[SYSTEM] ${data.message}`, 'log-system');
                 
-                // Poll logs every 1 sec
                 const interval = setInterval(async () => {
                     const pollRes = await fetch('/api/stats');
+                await loadDefenseConfig();
                     const pollData = await pollRes.json();
                     
-                    // Display latest logs
                     if (pollData.logs && pollData.logs.length > 0) {
                         const console = document.getElementById('console-output');
-                        console.innerHTML = ''; // clear for redraw
+                        console.innerHTML = ''; 
                         pollData.logs.forEach(log => appendLog(log, 'log-system'));
                     }
                     
@@ -796,11 +1880,10 @@
                         clearInterval(interval);
                         btn.disabled = false;
                         btn.innerHTML = `🔄 Retrain PyTorch Autoencoder`;
-                        document.getElementById('mse-threshold-val').textContent = pollData.mse_threshold.toFixed(4);
-                        appendLog(`[SYSTEM] Calibration complete! New Threshold: ${pollData.mse_threshold.toFixed(4)}`, 'log-safe');
+                        appendLog(`[SYSTEM] Calibration complete!`, 'log-safe');
+                        fetchStats(); // Reload models
                     }
                 }, 1000);
-
             } catch (err) {
                 appendLog(`[ERROR] Retrain start failed`, 'log-alert');
                 btn.disabled = false;
@@ -808,32 +1891,35 @@
             }
         }
 
-        function updateUI(data) {
-            // Update stats
-            document.getElementById('timing-val').textContent = `${data.timing_us.toFixed(2)} µs`;
-            document.getElementById('mse-val').textContent = data.mse.toFixed(5);
+        function updateCards(data) {
+            document.getElementById('timing-val').textContent = `${data.measured.execution_time_us.toFixed(2)} µs`;
+            document.getElementById('score-val').textContent = data.anomaly_score.toFixed(4);
+            document.getElementById('active-model-val').textContent = data.selected_model;
             
             const statusEl = document.getElementById('sys-status');
             const cardEl = statusEl.closest('.card');
             
-            // Staggered light-pulse animation flash on change
             cardEl.style.animation = 'none';
-            cardEl.offsetHeight; // trigger reflow
+            cardEl.offsetHeight; 
             cardEl.style.animation = 'light-pulse-flash 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards';
 
-            if (data.is_anomaly) {
+            if (data.predicted_status !== "Normal") {
                 statusEl.textContent = "INTRUSION ALERT";
                 statusEl.className = "stat-value status-anomaly";
+                document.getElementById('composite-pulse').className = "pulse-dot alert";
             } else {
                 statusEl.textContent = "SAFE";
                 statusEl.className = "stat-value status-safe";
+                document.getElementById('composite-pulse').className = "pulse-dot safe";
             }
+        }
 
-            // Append to chart datasets
-            const nextIdx = chartData.labels.length + 1;
-            chartData.labels.push(`Run ${nextIdx}`);
-            chartData.datasets[0].data.push(data.timing_us);
-            chartData.datasets[1].data.push(data.mitigated_timing_us);
+        function updateChart(data) {
+            globalRunCounter++;
+            chartData.labels.push(`Run ${globalRunCounter}`);
+            
+            chartData.datasets[0].data.push(data.measured.execution_time_us);
+            chartData.datasets[1].data.push(data.anomaly_score);
 
             if (chartData.labels.length > 15) {
                 chartData.labels.shift();
@@ -844,11 +1930,61 @@
             chart.update();
         }
 
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setAttackOption(val, text, svg) {
+            document.getElementById('attack-select').value = val;
+            document.getElementById('attack-select-value').innerHTML = svg + ' ' + text;
+            document.getElementById('custom-attack-select').classList.remove('open');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('custom-attack-select');
+            if (wrapper && !wrapper.contains(e.target)) {
+                wrapper.classList.remove('open');
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('sticky-nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        function openDashboard() {
+            document.getElementById('dashboard-main').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Use IntersectionObserver to trigger card animations on scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.animation = 'none'; // Clear initial animation
+                observer.observe(card);
+            });
+        });
+
         // Onload init
-        window.onload = () => {
+        // Initialize dashboard
+        window.addEventListener('load', () => {
             initChart();
             fetchStats();
-        };
+            connectWebSocket();
+        });
     </script>
 </body>
 </html>

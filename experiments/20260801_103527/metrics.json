@@ -1,0 +1,94 @@
+[
+    {
+        "model_name": "Isolation Forest",
+        "f1": 0.0,
+        "mcc": -0.15118578920369088,
+        "roc_auc": 0.9187500000000001,
+        "pr_auc": 0.7721640695905403,
+        "balanced_accuracy": 0.475,
+        "precision": 0.0,
+        "recall": 0.0,
+        "train_time_s": 0.04930520057678223,
+        "inference_time_s": 0.00577092170715332,
+        "model_size_bytes": 486069,
+        "confusion_matrix": [
+            [
+                19,
+                1
+            ],
+            [
+                16,
+                0
+            ]
+        ]
+    },
+    {
+        "model_name": "One-Class SVM",
+        "f1": 0.8,
+        "mcc": 0.6625413488689132,
+        "roc_auc": 0.8625,
+        "pr_auc": 0.7377009602361265,
+        "balanced_accuracy": 0.825,
+        "precision": 0.8571428571428571,
+        "recall": 0.75,
+        "train_time_s": 0.000247955322265625,
+        "inference_time_s": 0.0003032684326171875,
+        "model_size_bytes": 1939,
+        "confusion_matrix": [
+            [
+                18,
+                2
+            ],
+            [
+                4,
+                12
+            ]
+        ]
+    },
+    {
+        "model_name": "Local Outlier Factor",
+        "f1": 0.0,
+        "mcc": -0.15118578920369088,
+        "roc_auc": 0.9,
+        "pr_auc": 0.7250481947318248,
+        "balanced_accuracy": 0.475,
+        "precision": 0.0,
+        "recall": 0.0,
+        "train_time_s": 0.000537872314453125,
+        "inference_time_s": 0.0006608963012695312,
+        "model_size_bytes": 25814,
+        "confusion_matrix": [
+            [
+                19,
+                1
+            ],
+            [
+                16,
+                0
+            ]
+        ]
+    },
+    {
+        "model_name": "PyTorch Autoencoder",
+        "f1": 0.7586206896551724,
+        "mcc": 0.582855061421306,
+        "roc_auc": 0.8308823529411764,
+        "pr_auc": 0.7350737621296832,
+        "balanced_accuracy": 0.7849264705882353,
+        "precision": 0.8461538461538461,
+        "recall": 0.6875,
+        "train_time_s": 1.0246169567108154,
+        "inference_time_s": 0.00038814544677734375,
+        "model_size_bytes": 257394,
+        "confusion_matrix": [
+            [
+                15,
+                2
+            ],
+            [
+                5,
+                11
+            ]
+        ]
+    }
+]

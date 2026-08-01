@@ -1,0 +1,30 @@
+{
+    "algo": "ML-KEM-512",
+    "features": [
+        "execution_time_us",
+        "context_switches",
+        "max_rss_kb",
+        "cpu_usage",
+        "synthetic_cache_proxy",
+        "synthetic_branch_proxy",
+        "latency_variation_index",
+        "cache_pressure_index",
+        "latency_delta",
+        "rolling_latency_mean",
+        "rolling_latency_std",
+        "rss_delta",
+        "context_switch_rate",
+        "telemetry_entropy"
+    ],
+    "random_seed": 42,
+    "train_samples": 1600,
+    "test_samples": 800,
+    "system_info": {
+        "os": "Darwin",
+        "os_release": "25.5.0",
+        "cpu": "arm",
+        "python_version": "3.11.15",
+        "git_commit": "bd52aa9cd720e7f8d9286c3daff6a06b9eda80ae"
+    },
+    "timestamp": "20260801_153955"
+}

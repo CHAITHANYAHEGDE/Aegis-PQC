@@ -1,34 +1,32 @@
-import torch
-import torch.nn as nn
-import numpy as np
 import os
-import subprocess
 import random
+import subprocess
+
+import numpy as np
+import torch
+from torch import nn
+
 
 class ExecutionAutoencoder(nn.Module):
     def __init__(self, input_dim=16):
-        super(ExecutionAutoencoder, self).__init__()
+        super().__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(input_dim, 8),
-            nn.ReLU(),
-            nn.Linear(8, 4),
-            nn.ReLU()
+            nn.Linear(input_dim, 8), nn.ReLU(), nn.Linear(8, 4), nn.ReLU()
         )
         self.decoder = nn.Sequential(
-            nn.Linear(4, 8),
-            nn.ReLU(),
-            nn.Linear(8, input_dim)
+            nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, input_dim)
         )
 
     def forward(self, x):
         return self.decoder(self.encoder(x))
 
+
 def generate_training_data(n_runs=150):
     print(f"[TRAINING] Collecting {n_runs} normal execution samples...")
     timings = []
     for i in range(n_runs):
-        result = subprocess.run(
-            ["./module1_engine"], capture_output=True, text=True
+        subprocess.run(
+            ["./module1_engine"], capture_output=True, text=True, check=False
         )
         if os.path.exists("timing_trace.txt"):
             with open("timing_trace.txt", "r") as f:
@@ -41,12 +39,15 @@ def generate_training_data(n_runs=150):
 
     dataset = []
     for i in range(len(timings) - 16):
-        window = timings[i:i+16]
+        window = timings[i : i + 16]
         normalized = (window - mean_t) / (std_t + 1e-8)
         dataset.append(normalized)
 
-    print(f"[TRAINING] Mean: {mean_t:.3f} µs | Std: {std_t:.3f} µs | Samples: {len(dataset)}")
+    print(
+        f"[TRAINING] Mean: {mean_t:.3f} µs | Std: {std_t:.3f} µs | Samples: {len(dataset)}"
+    )
     return np.array(dataset, dtype=np.float32), mean_t, std_t
+
 
 def train_autoencoder(model, data, epochs=500):
     print(f"[TRAINING] Training PyTorch Autoencoder ({epochs} epochs)...")
@@ -68,10 +69,11 @@ def train_autoencoder(model, data, epochs=500):
     print("[TRAINING] ✅ Training Complete!\n")
     return model
 
+
 def compute_dynamic_threshold(model, data, multiplier=3.0):
     """Auto-calibrate threshold from training data reconstruction errors"""
     model.eval()
-    criterion = nn.MSELoss(reduction='none')
+    criterion = nn.MSELoss(reduction="none")
     tensor_data = torch.tensor(data)
     with torch.no_grad():
         reconstructed = model(tensor_data)
@@ -85,18 +87,19 @@ def compute_dynamic_threshold(model, data, multiplier=3.0):
     print(f"[CALIBRATION] Auto-Calibrated Threshold (mean + 3σ): {threshold:.6f}\n")
     return threshold
 
+
 def detect_threat(model, current_timing, mean_t, std_t, threshold):
     model.eval()
     with torch.no_grad():
         normalized = (current_timing - mean_t) / (std_t + 1e-8)
         input_vec = np.array(
-            [normalized + random.gauss(0, 0.01) for _ in range(16)],
-            dtype=np.float32
+            [normalized + random.gauss(0, 0.01) for _ in range(16)], dtype=np.float32
         )
         tensor_input = torch.tensor(input_vec).unsqueeze(0)
         reconstructed = model(tensor_input)
         mse_loss = nn.MSELoss()(reconstructed, tensor_input).item()
     return mse_loss
+
 
 def main():
     print("=" * 57)
@@ -136,21 +139,21 @@ def main():
 
     if mse_loss <= threshold:
         risk = (mse_loss / threshold) * 100
-        print(f"🟢 [STATUS: SAFE] Normal Execution Profile Verified.")
+        print("🟢 [STATUS: SAFE] Normal Execution Profile Verified.")
         print(f"🛡️  Side-Channel Attack Probability: {risk:.2f}%")
-        print(f"✅ Payload cleared for transmission.")
+        print("✅ Payload cleared for transmission.")
     else:
         overshoot = ((mse_loss - threshold) / threshold) * 100
         print(f"🔴 [STATUS: ANOMALY DETECTED] Exceeds threshold by {overshoot:.1f}%!")
-        print(f"⚠️  Initiating Dynamic Entropy Masking Protocol...")
+        print("⚠️  Initiating Dynamic Entropy Masking Protocol...")
         noise = random.uniform(5.0, 25.0)
         print(f"🛡️  Applied {noise:.2f} µs Non-Deterministic Timing Perturbation.")
-        print(f"🔁 Execution cycle reset & L1 cache flush initiated.")
+        print("🔁 Execution cycle reset & L1 cache flush initiated.")
 
     print("\n" + "=" * 57)
     print("  ✅ AI Introspection Guard v2 Complete")
     print("=" * 57)
 
+
 if __name__ == "__main__":
     main()
-
