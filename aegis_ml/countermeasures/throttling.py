@@ -1,6 +1,7 @@
 import time
+from typing import Any
+
 from .base import BaseCountermeasure
-from typing import Dict, Any
 
 
 class Throttling(BaseCountermeasure):
@@ -10,7 +11,7 @@ class Throttling(BaseCountermeasure):
         self.tokens = max_requests_per_sec
         self.last_update = time.time()
 
-    def execute(self, telemetry: Dict[str, Any], confidence: float) -> float:
+    def execute(self, telemetry: dict[str, Any], confidence: float) -> float:
         if not self.enabled:
             return 0.0
 
@@ -18,8 +19,7 @@ class Throttling(BaseCountermeasure):
         now = time.time()
         elapsed = now - self.last_update
         self.tokens += elapsed * self.max_requests_per_sec
-        if self.tokens > self.max_requests_per_sec:
-            self.tokens = self.max_requests_per_sec
+        self.tokens = min(self.tokens, self.max_requests_per_sec)
         self.last_update = now
 
         overhead = 0.0

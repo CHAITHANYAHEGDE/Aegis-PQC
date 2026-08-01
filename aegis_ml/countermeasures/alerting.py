@@ -1,13 +1,14 @@
-import time
 import logging
+import time
+from typing import Any
+
 from .base import BaseCountermeasure
-from typing import Dict, Any
 
 logger = logging.getLogger("AegisAlerts")
 
 
 class Alerting(BaseCountermeasure):
-    def execute(self, telemetry: Dict[str, Any], confidence: float) -> float:
+    def execute(self, telemetry: dict[str, Any], confidence: float) -> float:
         if not self.enabled:
             return 0.0
 

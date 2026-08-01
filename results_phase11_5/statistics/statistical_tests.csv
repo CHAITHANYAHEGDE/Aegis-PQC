@@ -1,0 +1,6 @@
+Comparison,McNemar p-value,Wilcoxon p-value
+Random Forest vs Isolation Forest,1.6230481890680712e-217,5.967863923109061e-218
+Random Forest vs Logistic Regression,1.2380532218669411e-62,4.5465312132816437e-63
+XGBoost vs Random Forest,0.0,
+Isolation Forest vs OCSVM,0.04839914178938299,0.0452359808471537
+Isolation Forest vs LOF,0.363585211586969,0.3500391080097107

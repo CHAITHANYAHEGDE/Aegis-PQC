@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -14,7 +15,6 @@ from aegis_ml.evaluate import evaluate_model
 from aegis_ml.experiment import ExperimentLogger
 from aegis_ml.features import engineer_features
 from aegis_ml.models.registry import get_model
-import pickle
 from aegis_ml.visualize import (
     plot_confusion_matrices,
     plot_feature_correlation,
@@ -158,7 +158,12 @@ def main():
 
         sys_log.info(f"Evaluating {best_model.name}...")
         res = evaluate_model(best_model, X_train_1d_clean, X_test_1d, y_test_1d)
-        best_model.save(os.path.join(logger_manager.exp_dir, f"{m_info['name'].replace(' ', '_').lower()}.pkl"))
+        best_model.save(
+            os.path.join(
+                logger_manager.exp_dir,
+                f"{m_info['name'].replace(' ', '_').lower()}.pkl",
+            )
+        )
         results.append(res)
 
     ae = get_model(

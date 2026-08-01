@@ -1,5 +1,3 @@
-import re
-
 with open("templates/index.html", "r") as f:
     html = f.read()
 
@@ -16,7 +14,11 @@ system_state_addition = """
                         </div>
                     </div>
 """
-html = html.replace('<span id="sys-status" class="stat-value status-safe">SAFE</span>', '<span id="sys-status" class="stat-value status-safe">SAFE</span>' + system_state_addition)
+html = html.replace(
+    '<span id="sys-status" class="stat-value status-safe">SAFE</span>',
+    '<span id="sys-status" class="stat-value status-safe">SAFE</span>'
+    + system_state_addition,
+)
 
 # Add defense metrics to the stats grid
 stats_addition = """
@@ -37,7 +39,12 @@ stats_addition = """
                         <span id="mitigation-count-val" class="stat-value">0 / 0</span>
                     </div>
 """
-html = html.replace('</div>\n            </div>\n\n            <!-- Timing Chart -->', '</div>\n' + stats_addition + '\n            </div>\n\n            <!-- Timing Chart -->')
+html = html.replace(
+    "</div>\n            </div>\n\n            <!-- Timing Chart -->",
+    "</div>\n"
+    + stats_addition
+    + "\n            </div>\n\n            <!-- Timing Chart -->",
+)
 
 # Add the Active Defenses card to the right panel
 defense_card = """
@@ -65,7 +72,12 @@ defense_card = """
                 </div>
             </div>
 """
-html = html.replace('<!-- Command Center & Simulator Panel -->', '<!-- Active Defense -->\n' + defense_card + '\n            <!-- Command Center & Simulator Panel -->')
+html = html.replace(
+    "<!-- Command Center & Simulator Panel -->",
+    "<!-- Active Defense -->\n"
+    + defense_card
+    + "\n            <!-- Command Center & Simulator Panel -->",
+)
 
 # Update JS to handle mitigation logic
 js_additions = """
@@ -99,7 +111,10 @@ js_additions = """
             });
         }
 """
-html = html.replace('function handleTelemetryEvent(data) {', js_additions + '\n        function handleTelemetryEvent(data) {')
+html = html.replace(
+    "function handleTelemetryEvent(data) {",
+    js_additions + "\n        function handleTelemetryEvent(data) {",
+)
 
 # Inside handleTelemetryEvent
 event_update = """
@@ -136,15 +151,30 @@ event_update = """
             
             const mitigationActionStr = data.defense ? " | Mitigation: " + data.defense.mitigation_action : "";
 """
-html = html.replace('const timing = data.measured.execution_time_us;', event_update + '\n            const timing = data.measured.execution_time_us;')
+html = html.replace(
+    "const timing = data.measured.execution_time_us;",
+    event_update + "\n            const timing = data.measured.execution_time_us;",
+)
 
-html = html.replace('appendLog(`[ALERT] Anomaly Detected! Profile: ${data.attack_profile} | Score: ${score.toFixed(3)} | Confidence: ${data.confidence.toFixed(1)}%`, \'log-alert\', true);', 'appendLog(`[ALERT] Anomaly Detected! Profile: ${data.attack_profile} | Score: ${score.toFixed(3)} | Confidence: ${data.confidence.toFixed(1)}%${mitigationActionStr}`, \'log-alert\', true);')
+html = html.replace(
+    "appendLog(`[ALERT] Anomaly Detected! Profile: ${data.attack_profile} | Score: ${score.toFixed(3)} | Confidence: ${data.confidence.toFixed(1)}%`, 'log-alert', true);",
+    "appendLog(`[ALERT] Anomaly Detected! Profile: ${data.attack_profile} | Score: ${score.toFixed(3)} | Confidence: ${data.confidence.toFixed(1)}%${mitigationActionStr}`, 'log-alert', true);",
+)
 
-html = html.replace('appendLog(`[SAFE] Simulated attack cleared. Score: ${score.toFixed(3)}`, \'log-safe\', false);', 'appendLog(`[SAFE] Simulated attack cleared. Score: ${score.toFixed(3)}${mitigationActionStr}`, \'log-safe\', false);')
+html = html.replace(
+    "appendLog(`[SAFE] Simulated attack cleared. Score: ${score.toFixed(3)}`, 'log-safe', false);",
+    "appendLog(`[SAFE] Simulated attack cleared. Score: ${score.toFixed(3)}${mitigationActionStr}`, 'log-safe', false);",
+)
 
-html = html.replace('appendLog(`[NORMAL] timing: ${timing.toFixed(3)} µs | Score: ${score.toFixed(3)} | Status: CLEAR`, \'log-safe\', false);', 'appendLog(`[NORMAL] timing: ${timing.toFixed(3)} µs | Score: ${score.toFixed(3)} | Status: CLEAR${mitigationActionStr}`, \'log-safe\', false);')
+html = html.replace(
+    "appendLog(`[NORMAL] timing: ${timing.toFixed(3)} µs | Score: ${score.toFixed(3)} | Status: CLEAR`, 'log-safe', false);",
+    "appendLog(`[NORMAL] timing: ${timing.toFixed(3)} µs | Score: ${score.toFixed(3)} | Status: CLEAR${mitigationActionStr}`, 'log-safe', false);",
+)
 
-html = html.replace('await fetch(\'/api/stats\');', 'await fetch(\'/api/stats\');\n                await loadDefenseConfig();')
+html = html.replace(
+    "await fetch('/api/stats');",
+    "await fetch('/api/stats');\n                await loadDefenseConfig();",
+)
 
 with open("templates/index.html", "w") as f:
     f.write(html)

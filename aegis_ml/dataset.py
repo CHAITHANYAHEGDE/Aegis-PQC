@@ -2,7 +2,6 @@ import logging
 import os
 import time
 
-from aegis_ml.hardware import get_default_provider
 import pandas as pd
 
 from aegis_ml.config import (
@@ -10,6 +9,7 @@ from aegis_ml.config import (
     DEFAULT_ATTACK_SAMPLES_PER_PROFILE,
     DEFAULT_NORMAL_SAMPLES,
 )
+from aegis_ml.hardware import get_default_provider
 
 
 def compute_derived_metrics(df):

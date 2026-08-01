@@ -1,7 +1,8 @@
-import time
 import random
+import time
+from typing import Any
+
 from .base import BaseCountermeasure
-from typing import Dict, Any
 
 
 class RandomDelay(BaseCountermeasure):
@@ -10,7 +11,7 @@ class RandomDelay(BaseCountermeasure):
         self.min_delay_s = min_delay_s
         self.max_delay_s = max_delay_s
 
-    def execute(self, telemetry: Dict[str, Any], confidence: float) -> float:
+    def execute(self, telemetry: dict[str, Any], confidence: float) -> float:
         if not self.enabled:
             return 0.0
 

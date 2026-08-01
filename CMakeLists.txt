@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 project(AegisPQC)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # 1. Detect Python using modern CMake
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
@@ -36,9 +39,13 @@ pybind11_add_module(aegis_engine aegis_engine.cpp)
 set(OQS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/liboqs_src/build/include")
 set(OQS_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/liboqs_src/build/lib")
 
-target_include_directories(aegis_engine PRIVATE "${OQS_INCLUDE_DIR}")
-target_link_directories(aegis_engine PRIVATE "${OQS_LIB_DIR}")
-target_link_libraries(aegis_engine PRIVATE oqs)
+# 5. ONNX Runtime
+set(ONNX_INCLUDE_DIR "/opt/homebrew/include/onnxruntime")
+set(ONNX_LIB_DIR "/opt/homebrew/lib")
+
+target_include_directories(aegis_engine PRIVATE "${OQS_INCLUDE_DIR}" "${ONNX_INCLUDE_DIR}")
+target_link_directories(aegis_engine PRIVATE "${OQS_LIB_DIR}" "${ONNX_LIB_DIR}")
+target_link_libraries(aegis_engine PRIVATE oqs onnxruntime)
 
 # Needed for macOS pybind11 modules
 if(APPLE)

@@ -5,7 +5,9 @@ os.makedirs(base_dir, exist_ok=True)
 
 files = {}
 
-files["__init__.py"] = """
+files[
+    "__init__.py"
+] = """
 from .base import BaseCountermeasure
 from .random_delay import RandomDelay
 from .throttling import Throttling
@@ -15,7 +17,9 @@ from .key_rotation import KeyRotation
 from .response_policy import ResponsePolicy
 """
 
-files["base.py"] = """
+files[
+    "base.py"
+] = """
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
@@ -38,7 +42,9 @@ class BaseCountermeasure(ABC):
         pass
 """
 
-files["random_delay.py"] = """
+files[
+    "random_delay.py"
+] = """
 import time
 import random
 from .base import BaseCountermeasure
@@ -62,7 +68,9 @@ class RandomDelay(BaseCountermeasure):
         return delay
 """
 
-files["throttling.py"] = """
+files[
+    "throttling.py"
+] = """
 import time
 from .base import BaseCountermeasure
 from typing import Dict, Any
@@ -100,7 +108,9 @@ class Throttling(BaseCountermeasure):
         return overhead
 """
 
-files["forensic_logger.py"] = """
+files[
+    "forensic_logger.py"
+] = """
 import json
 import time
 import os
@@ -130,7 +140,9 @@ class ForensicLogger(BaseCountermeasure):
         return time.perf_counter() - start_time
 """
 
-files["alerting.py"] = """
+files[
+    "alerting.py"
+] = """
 import time
 import logging
 from .base import BaseCountermeasure
@@ -148,7 +160,9 @@ class Alerting(BaseCountermeasure):
         return time.perf_counter() - start_time
 """
 
-files["key_rotation.py"] = """
+files[
+    "key_rotation.py"
+] = """
 import time
 from .base import BaseCountermeasure
 from typing import Dict, Any
@@ -165,7 +179,9 @@ class KeyRotation(BaseCountermeasure):
         return time.perf_counter() - start_time
 """
 
-files["response_policy.py"] = """
+files[
+    "response_policy.py"
+] = """
 from typing import Dict, Any, List, Tuple
 from .random_delay import RandomDelay
 from .throttling import Throttling

@@ -1,6 +1,7 @@
-import time
 import json
 import statistics
+import time
+
 from aegis_ml.countermeasures.response_policy import ResponsePolicy
 
 

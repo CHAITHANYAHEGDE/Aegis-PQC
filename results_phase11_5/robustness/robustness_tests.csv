@@ -1,0 +1,18 @@
+Perturbation,Accuracy
+None,1.0
+Noise 0.1,1.0
+Noise 0.5,0.976
+Noise 1.0,0.94
+Drop execution_time_us,0.16666666666666666
+Drop max_rss_kb,0.0
+Drop context_switches,1.0
+Drop cpu_usage,0.16666666666666666
+Drop synthetic_cache_proxy,1.0
+Drop synthetic_branch_proxy,1.0
+Drop hw_cpu_cycles,1.0
+Drop hw_instructions,1.0
+Drop hw_cache_references,1.0
+Drop hw_cache_misses,1.0
+Drop hw_branch_instructions,1.0
+Drop hw_branch_misses,1.0
+Drop sw_page_faults,1.0

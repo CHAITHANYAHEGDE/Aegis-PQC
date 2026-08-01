@@ -1,9 +1,6 @@
-import time
-import pytest
-from aegis_ml.countermeasures.response_policy import ResponsePolicy
 from aegis_ml.countermeasures.random_delay import RandomDelay
+from aegis_ml.countermeasures.response_policy import ResponsePolicy
 from aegis_ml.countermeasures.throttling import Throttling
-from aegis_ml.countermeasures.forensic_logger import ForensicLogger
 
 
 def test_random_delay_disabled():

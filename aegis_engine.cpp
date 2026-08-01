@@ -8,7 +8,9 @@
 #include <string>
 #include <sys/resource.h>
 #include <map>
-
+#include <thread>
+#include "onnx_inference.hpp"
+#include "policy_engine.hpp"
 #ifdef __linux__
 #include <linux/perf_event.h>
 #include <sys/syscall.h>
@@ -162,7 +164,22 @@ public:
 
 namespace py = pybind11;
 
+// Global Singletons for Model and Policy
+static ONNXModel* g_model = nullptr;
+static PolicyEngine* g_policy = nullptr;
+
+void init_defense_subsystem() {
+    if (!g_model) {
+        g_model = new ONNXModel("rf_model.onnx");
+    }
+    if (!g_policy) {
+        g_policy = new PolicyEngine(2, 1000);
+    }
+}
+
 std::map<std::string, double> run_crypto(const std::string& algo_name, const std::string& attack_profile) {
+    init_defense_subsystem();
+
     std::map<std::string, double> telemetry;
     
     // Legacy Software Telemetry structs
@@ -280,6 +297,44 @@ std::map<std::string, double> run_crypto(const std::string& algo_name, const std
     
     // Populate Hardware Telemetry
     hw_perf.populate_telemetry(telemetry);
+    
+    // Evaluate Anomaly using Native Runtime ONNX Model
+    if (g_model && g_model->loaded()) {
+        std::vector<float> features;
+        // Software features
+        features.push_back(telemetry["execution_time_us"]);
+        features.push_back(telemetry["max_rss_kb"]);
+        features.push_back(telemetry["context_switches"]);
+        features.push_back(telemetry["cpu_usage"]);
+        features.push_back(telemetry["synthetic_cache_proxy"]);
+        features.push_back(telemetry["synthetic_branch_proxy"]);
+        
+        // Hardware features
+        features.push_back(telemetry["hw_cpu_cycles"]);
+        features.push_back(telemetry["hw_instructions"]);
+        features.push_back(telemetry["hw_cache_references"]);
+        features.push_back(telemetry["hw_cache_misses"]);
+        features.push_back(telemetry["hw_branch_instructions"]);
+        features.push_back(telemetry["hw_branch_misses"]);
+        features.push_back(telemetry["sw_page_faults"]);
+        
+        double prediction = g_model->predict(features);
+        double anomaly_score = (prediction > 0.5) ? 1.0 : 0.0;
+        double confidence = (prediction > 0.5) ? 0.9 : 0.1;
+        bool hw_available = (telemetry["hw_telemetry_available"] > 0.5);
+        
+        PolicyDecision decision = g_policy->evaluate(anomaly_score, confidence, hw_available);
+        
+        telemetry["mitigation_action"] = static_cast<double>(decision.action);
+        telemetry["mitigation_delay_us"] = decision.delay_us;
+        
+        if (decision.action == MitigationAction::DELAY && decision.delay_us > 0) {
+            std::this_thread::sleep_for(std::chrono::microseconds(decision.delay_us));
+        }
+    } else {
+        telemetry["mitigation_action"] = 0.0;
+        telemetry["mitigation_delay_us"] = 0.0;
+    }
     
     return telemetry;
 }

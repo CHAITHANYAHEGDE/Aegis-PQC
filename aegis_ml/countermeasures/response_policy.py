@@ -1,9 +1,10 @@
-from typing import Dict, Any, List, Tuple
+from typing import Any
+
+from .alerting import Alerting
+from .forensic_logger import ForensicLogger
+from .key_rotation import KeyRotation
 from .random_delay import RandomDelay
 from .throttling import Throttling
-from .forensic_logger import ForensicLogger
-from .alerting import Alerting
-from .key_rotation import KeyRotation
 
 
 class ResponsePolicy:
@@ -24,8 +25,8 @@ class ResponsePolicy:
         self.cm_key_rotation.enable()
 
     def evaluate_and_react(
-        self, confidence: float, telemetry: Dict[str, Any]
-    ) -> Tuple[List[str], float]:
+        self, confidence: float, telemetry: dict[str, Any]
+    ) -> tuple[list[str], float]:
         """
         Evaluates the threat confidence and triggers countermeasures.
         Returns a tuple of (list of triggered mitigation actions, total overhead in seconds).
@@ -80,7 +81,7 @@ class ResponsePolicy:
             "key_rotation": self.cm_key_rotation.enabled,
         }
 
-    def update_config(self, config: Dict[str, bool]):
+    def update_config(self, config: dict[str, bool]):
         if "randomized_delay" in config:
             self.cm_random_delay.enabled = config["randomized_delay"]
         if "throttling" in config:

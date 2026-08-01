@@ -71,35 +71,38 @@ class PyTorchAutoencoderModel(BaseModel):
 
     def predict_with_confidence(self, X_test, num_passes=10):
         """
-        Runs N stochastic forward passes with dropout enabled (train mode) 
+        Runs N stochastic forward passes with dropout enabled (train mode)
         to estimate confidence using Monte Carlo Dropout.
         Returns:
             mean_mse: Array of mean MSEs across passes
             var_mse: Array of variance across passes
         """
-        self.model.train() # Enable dropout
+        self.model.train()  # Enable dropout
         tensor_data = torch.tensor(X_test, dtype=torch.float32)
-        
+
         all_mses = []
         with torch.no_grad():
             for _ in range(num_passes):
                 recon = self.model(tensor_data)
                 mses = torch.mean((recon - tensor_data) ** 2, dim=1).numpy()
                 all_mses.append(mses)
-                
-        all_mses = np.array(all_mses) # Shape: (num_passes, num_samples)
-        
+
+        all_mses = np.array(all_mses)  # Shape: (num_passes, num_samples)
+
         mean_mse = np.mean(all_mses, axis=0)
         var_mse = np.var(all_mses, axis=0)
-        
+
         return mean_mse, var_mse
 
     def save(self, filepath):
-        torch.save({
-            "model_state_dict": self.model.state_dict(),
-            "threshold": self.threshold,
-            "input_dim": self.input_dim
-        }, filepath)
+        torch.save(
+            {
+                "model_state_dict": self.model.state_dict(),
+                "threshold": self.threshold,
+                "input_dim": self.input_dim,
+            },
+            filepath,
+        )
 
     @classmethod
     def load(cls, filepath):

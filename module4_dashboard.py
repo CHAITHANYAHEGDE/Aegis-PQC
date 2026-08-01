@@ -1,10 +1,11 @@
 import asyncio
+import csv
+import json
 import os
 import random
 import time
-import json
-import csv
 from io import StringIO
+
 import numpy as np
 import pandas as pd
 from fastapi import (
@@ -16,18 +17,18 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse, StreamingResponse
 
-from aegis_ml.utils import (
-    setup_logging,
-    get_best_model_from_latest_experiment,
-    get_all_models_from_latest_experiment,
-    load_model_from_experiment,
-    get_latest_experiment_dir,
-    load_scaler_from_latest_experiment,
-)
-from aegis_ml.features import compute_entropy
-from aegis_ml.config import ENGINEERED_FEATURES, SEQUENCE_LENGTH
+from aegis_ml.config import ENGINEERED_FEATURES
 from aegis_ml.countermeasures.response_policy import ResponsePolicy
+from aegis_ml.features import compute_entropy
 from aegis_ml.hardware import get_default_provider
+from aegis_ml.utils import (
+    get_all_models_from_latest_experiment,
+    get_best_model_from_latest_experiment,
+    get_latest_experiment_dir,
+    load_model_from_experiment,
+    load_scaler_from_latest_experiment,
+    setup_logging,
+)
 
 logger = setup_logging()
 app = FastAPI(title="Aegis-PQC Side-Channel Defense Dashboard")
@@ -243,7 +244,7 @@ def execute_and_infer(attack_profile="none", algo="ML-KEM-512"):
 
     t_inf = time.perf_counter() - t_inf_start
     t_total = time.perf_counter() - t_start
-    
+
     hw_avail = telemetry.get("hw_telemetry_available", 0.0) == 1.0
     telemetry_mode = "Hardware" if hw_avail else "Software"
 

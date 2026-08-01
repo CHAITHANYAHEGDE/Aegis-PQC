@@ -1,8 +1,8 @@
 import json
 import time
-import os
+from typing import Any
+
 from .base import BaseCountermeasure
-from typing import Dict, Any
 
 
 class ForensicLogger(BaseCountermeasure):
@@ -10,7 +10,7 @@ class ForensicLogger(BaseCountermeasure):
         super().__init__()
         self.log_file = log_file
 
-    def execute(self, telemetry: Dict[str, Any], confidence: float) -> float:
+    def execute(self, telemetry: dict[str, Any], confidence: float) -> float:
         if not self.enabled:
             return 0.0
 
