@@ -1,9 +1,9 @@
-# Aegis-PQC: Post-Quantum Cryptography AI Shield
+# Aegis-PQC: Post-Quantum Cryptography AI Shield (Research Prototype v1.0.0)
 
-Aegis-PQC is a research-grade, real-time side-channel anomaly detection framework designed to protect Post-Quantum Cryptographic (PQC) algorithms. It provides a native C++ runtime that synchronously fuses software-level telemetry and hardware performance counters, feeding them into a highly optimized ONNX ML model to actively throttle or mitigate attacks mid-execution.
+Aegis-PQC is a research-grade, real-time side-channel anomaly detection framework designed to protect Post-Quantum Cryptographic (PQC) algorithms. It provides a native C++ runtime that synchronously fuses software-level telemetry and hardware performance counters, feeding them into a highly optimized ONNX ML model to actively throttle or mitigate attacks mid-execution. **Note: Physical side-channel detection remains entirely unvalidated. Current evaluations are strictly on synthetic telemetry.**
 
 ## Features
-- **Native C++ Performance**: ~20µs latency per cryptographic execution with full AI inference.
+- **Native C++ Performance**: ~46µs to 444µs latency per cryptographic execution with full AI inference (depending on TPS load). Achieves 5000+ TPS per core (Benchmark Environment: Apple M3, macOS 26.5.2, Apple Clang 21.0.0, Sequential 1 thread).
 - **Synchronous Mitigation**: Rejects or obfuscates keys proactively upon side-channel detection.
 - **Hardware-Software Fusion**: Fuses kernel `perf_event` hardware counters with process-level telemetry.
 - **Patent-Ready Architecture**: Designed with stringent security boundaries and reproducible validations.

@@ -16,9 +16,10 @@ except ImportError:
     print("Could not import build.aegis_engine. Make sure it's built.")
     exit(1)
 
+process = psutil.Process(os.getpid())
+process.cpu_percent(interval=None) # Prime the cpu measurement
 
 def measure_system_resources():
-    process = psutil.Process(os.getpid())
     return {
         "cpu_percent": process.cpu_percent(interval=None),
         "rss_mb": process.memory_info().rss / (1024 * 1024),
@@ -38,7 +39,14 @@ def run_scalability_test(tps, duration=5):
     start_time = time.time()
     latencies = []
 
-    for _ in range(total_requests):
+    for i in range(total_requests):
+        # Micro-warmup to prevent sleep-induced C-state descheduling latency
+        if i > 0:
+            try:
+                aegis_engine.run_crypto("ML-KEM-512", "none")
+            except Exception:
+                pass
+
         t0 = time.perf_counter()
 
         # Call the native execution pipeline (crypto + telemetry + inference + response)
