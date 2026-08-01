@@ -9,16 +9,171 @@
 #include <sys/resource.h>
 #include <map>
 
+#ifdef __linux__
+#include <linux/perf_event.h>
+#include <sys/syscall.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <string.h>
+
+class PerfCounter {
+private:
+    int fd;
+public:
+    PerfCounter(uint32_t type, uint64_t config) : fd(-1) {
+        struct perf_event_attr pe;
+        memset(&pe, 0, sizeof(struct perf_event_attr));
+        pe.type = type;
+        pe.size = sizeof(struct perf_event_attr);
+        pe.config = config;
+        pe.disabled = 1;
+        pe.exclude_kernel = 1;
+        pe.exclude_hv = 1;
+
+        fd = syscall(__NR_perf_event_open, &pe, 0, -1, -1, 0);
+    }
+
+    ~PerfCounter() {
+        if (fd != -1) {
+            close(fd);
+        }
+    }
+
+    bool is_valid() const {
+        return fd != -1;
+    }
+
+    void start() {
+        if (fd != -1) {
+            ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+            ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+        }
+    }
+
+    void stop() {
+        if (fd != -1) {
+            ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+        }
+    }
+
+    long long read_val() {
+        if (fd == -1) return -1;
+        long long count = -1;
+        if (read(fd, &count, sizeof(long long)) != sizeof(long long)) {
+            return -1;
+        }
+        return count;
+    }
+};
+
+class PerfGroup {
+public:
+    PerfCounter cycles;
+    PerfCounter instructions;
+    PerfCounter cache_refs;
+    PerfCounter cache_misses;
+    PerfCounter branches;
+    PerfCounter branch_misses;
+    PerfCounter page_faults;
+    PerfCounter ctx_switches;
+    PerfCounter cpu_migrations;
+    bool valid;
+
+    PerfGroup() :
+        cycles(PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES),
+        instructions(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS),
+        cache_refs(PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES),
+        cache_misses(PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES),
+        branches(PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS),
+        branch_misses(PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES),
+        page_faults(PERF_TYPE_SOFTWARE, PERF_COUNT_SW_PAGE_FAULTS),
+        ctx_switches(PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CONTEXT_SWITCHES),
+        cpu_migrations(PERF_TYPE_SOFTWARE, PERF_COUNT_SW_CPU_MIGRATIONS)
+    {
+        // If at least cycles works, we consider HW telemetry somewhat available
+        valid = cycles.is_valid();
+    }
+
+    void start() {
+        if(!valid) return;
+        cycles.start(); instructions.start(); cache_refs.start(); cache_misses.start();
+        branches.start(); branch_misses.start(); page_faults.start(); ctx_switches.start(); cpu_migrations.start();
+    }
+
+    void stop() {
+        if(!valid) return;
+        cycles.stop(); instructions.stop(); cache_refs.stop(); cache_misses.stop();
+        branches.stop(); branch_misses.stop(); page_faults.stop(); ctx_switches.stop(); cpu_migrations.stop();
+    }
+    
+    void populate_telemetry(std::map<std::string, double>& t) {
+        if (valid) {
+            t["hw_telemetry_available"] = 1.0;
+            t["hw_cpu_cycles"] = cycles.read_val();
+            t["hw_instructions"] = instructions.read_val();
+            t["hw_cache_references"] = cache_refs.read_val();
+            t["hw_cache_misses"] = cache_misses.read_val();
+            t["hw_branch_instructions"] = branches.read_val();
+            t["hw_branch_misses"] = branch_misses.read_val();
+            t["sw_page_faults"] = page_faults.read_val();
+            t["sw_context_switches"] = ctx_switches.read_val();
+            t["sw_cpu_migrations"] = cpu_migrations.read_val();
+        } else {
+            set_unsupported(t);
+        }
+    }
+    
+    static void set_unsupported(std::map<std::string, double>& t) {
+        t["hw_telemetry_available"] = 0.0;
+        t["hw_cpu_cycles"] = -1.0;
+        t["hw_instructions"] = -1.0;
+        t["hw_cache_references"] = -1.0;
+        t["hw_cache_misses"] = -1.0;
+        t["hw_branch_instructions"] = -1.0;
+        t["hw_branch_misses"] = -1.0;
+        t["sw_page_faults"] = -1.0;
+        t["sw_context_switches"] = -1.0;
+        t["sw_cpu_migrations"] = -1.0;
+    }
+};
+
+#else
+class PerfGroup {
+public:
+    void start() {}
+    void stop() {}
+    void populate_telemetry(std::map<std::string, double>& t) {
+        set_unsupported(t);
+    }
+    static void set_unsupported(std::map<std::string, double>& t) {
+        t["hw_telemetry_available"] = 0.0;
+        t["hw_cpu_cycles"] = -1.0;
+        t["hw_instructions"] = -1.0;
+        t["hw_cache_references"] = -1.0;
+        t["hw_cache_misses"] = -1.0;
+        t["hw_branch_instructions"] = -1.0;
+        t["hw_branch_misses"] = -1.0;
+        t["sw_page_faults"] = -1.0;
+        t["sw_context_switches"] = -1.0;
+        t["sw_cpu_migrations"] = -1.0;
+    }
+};
+#endif
+
 namespace py = pybind11;
 
 std::map<std::string, double> run_crypto(const std::string& algo_name, const std::string& attack_profile) {
     std::map<std::string, double> telemetry;
     
-    // Telemetry structs
+    // Legacy Software Telemetry structs
     struct rusage usage_start, usage_end;
     getrusage(RUSAGE_SELF, &usage_start);
     
+    PerfGroup hw_perf;
+    
     auto t_start = std::chrono::high_resolution_clock::now();
+    
+    hw_perf.start();
     
     // KEM or SIG
     if (algo_name.find("ML-KEM") != std::string::npos) {
@@ -69,6 +224,8 @@ std::map<std::string, double> run_crypto(const std::string& algo_name, const std
         throw std::runtime_error("Unknown algorithm type or missing prefix (ML-KEM, ML-DSA, Falcon, SPHINCS): " + algo_name);
     }
     
+    hw_perf.stop();
+    
     // Emulate attacks
     double synthetic_cache_proxy = 0.0;
     double synthetic_branch_proxy = 0.0;
@@ -113,6 +270,7 @@ std::map<std::string, double> run_crypto(const std::string& algo_name, const std
     double utime = (usage_end.ru_utime.tv_sec - usage_start.ru_utime.tv_sec) * 1e6 + (usage_end.ru_utime.tv_usec - usage_start.ru_utime.tv_usec);
     double stime = (usage_end.ru_stime.tv_sec - usage_start.ru_stime.tv_sec) * 1e6 + (usage_end.ru_stime.tv_usec - usage_start.ru_stime.tv_usec);
     
+    // Core telemetry
     telemetry["execution_time_us"] = elapsed_us;
     telemetry["context_switches"] = ctx_switches;
     telemetry["max_rss_kb"] = max_rss;
@@ -120,11 +278,14 @@ std::map<std::string, double> run_crypto(const std::string& algo_name, const std
     telemetry["synthetic_cache_proxy"] = synthetic_cache_proxy;
     telemetry["synthetic_branch_proxy"] = synthetic_branch_proxy;
     
+    // Populate Hardware Telemetry
+    hw_perf.populate_telemetry(telemetry);
+    
     return telemetry;
 }
 
 PYBIND11_MODULE(aegis_engine, m) {
-    m.doc() = "Aegis PQC native crypto engine via pybind11 and liboqs";
+    m.doc() = "Aegis PQC native crypto engine via pybind11 and liboqs (with Linux perf hw telemetry)";
     m.def("run_crypto", &run_crypto, "Execute PQC algorithm and return telemetry",
           py::arg("algo_name"), py::arg("attack_profile") = "none");
 }

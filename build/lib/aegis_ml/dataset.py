@@ -2,7 +2,7 @@ import logging
 import os
 import time
 
-from aegis_ml.hardware import get_default_provider
+import aegis_engine
 import pandas as pd
 
 from aegis_ml.config import (
@@ -46,9 +46,8 @@ def generate_telemetry_dataset(
 
     logger = logging.getLogger("aegis")
     logger.info(f"Generating normal baseline for {algo} ({normal_samples} samples)...")
-    provider = get_default_provider()
     for _ in range(normal_samples):
-        res = provider.get_telemetry(algo, "none")
+        res = aegis_engine.run_crypto(algo, "none")
         res["attack_profile"] = "none"
         res["is_anomaly"] = 0
         res["algorithm"] = algo
@@ -62,7 +61,7 @@ def generate_telemetry_dataset(
             f"Generating attack profile '{attack}' for {algo} ({attack_samples} samples)..."
         )
         for _ in range(attack_samples):
-            res = provider.get_telemetry(algo, attack)
+            res = aegis_engine.run_crypto(algo, attack)
             res["attack_profile"] = attack
             res["is_anomaly"] = 1
             res["algorithm"] = algo

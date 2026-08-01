@@ -15,6 +15,8 @@ aegis_ml.egg-info/SOURCES.txt
 aegis_ml.egg-info/dependency_links.txt
 aegis_ml.egg-info/requires.txt
 aegis_ml.egg-info/top_level.txt
+tests/test_countermeasures.py
 tests/test_dashboard.py
+tests/test_hardware_telemetry.py
 tests/test_ml_pipeline.py
 tests/test_phase6.py

@@ -1,0 +1,3 @@
+/Users/chaithanyahegde/pqc_ai_shield/build/CMakeFiles/aegis_engine.dir
+/Users/chaithanyahegde/pqc_ai_shield/build/CMakeFiles/edit_cache.dir
+/Users/chaithanyahegde/pqc_ai_shield/build/CMakeFiles/rebuild_cache.dir

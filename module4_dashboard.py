@@ -27,7 +27,7 @@ from aegis_ml.utils import (
 from aegis_ml.features import compute_entropy
 from aegis_ml.config import ENGINEERED_FEATURES, SEQUENCE_LENGTH
 from aegis_ml.countermeasures.response_policy import ResponsePolicy
-import aegis_engine
+from aegis_ml.hardware import get_default_provider
 
 logger = setup_logging()
 app = FastAPI(title="Aegis-PQC Side-Channel Defense Dashboard")
@@ -177,9 +177,10 @@ def execute_and_infer(attack_profile="none", algo="ML-KEM-512"):
 
     # 1. Crypto Execution
     try:
-        telemetry = aegis_engine.run_crypto(algo, attack_profile)
+        provider = get_default_provider()
+        telemetry = provider.get_telemetry(algo, attack_profile)
     except Exception as e:
-        logger.error(f"Error running aegis_engine: {e}")
+        logger.error(f"Error running hardware provider: {e}")
         # Fallback for dev purposes if binary crashes
         telemetry = {
             "execution_time_us": random.gauss(180, 5),
@@ -242,10 +243,14 @@ def execute_and_infer(attack_profile="none", algo="ML-KEM-512"):
 
     t_inf = time.perf_counter() - t_inf_start
     t_total = time.perf_counter() - t_start
+    
+    hw_avail = telemetry.get("hw_telemetry_available", 0.0) == 1.0
+    telemetry_mode = "Hardware" if hw_avail else "Software"
 
     # 4. Result formulation
     result = {
         "timestamp": telemetry["timestamp"],
+        "telemetry_mode": telemetry_mode,
         "algorithm": algo,
         "attack_profile": attack_profile,
         "selected_model": active_model_name,
@@ -258,6 +263,10 @@ def execute_and_infer(attack_profile="none", algo="ML-KEM-512"):
             "max_rss_kb": float(telemetry.get("max_rss_kb", 0)),
             "context_switches": int(telemetry.get("context_switches", 0)),
             "cpu_usage": float(telemetry.get("cpu_usage", 0.0)),
+            "hw_cpu_cycles": float(telemetry.get("hw_cpu_cycles", -1.0)),
+            "hw_instructions": float(telemetry.get("hw_instructions", -1.0)),
+            "hw_cache_misses": float(telemetry.get("hw_cache_misses", -1.0)),
+            "hw_branch_misses": float(telemetry.get("hw_branch_misses", -1.0)),
         },
         # Derived
         "derived": {
