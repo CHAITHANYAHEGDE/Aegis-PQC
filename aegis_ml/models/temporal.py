@@ -222,12 +222,12 @@ class HMMClassifier:
 
             try:
                 ll_0 = self.hmm_normal.score(x_seq)
-            except:
+            except Exception:
                 ll_0 = -1e9
 
             try:
                 ll_1 = self.hmm_anomaly.score(x_seq)
-            except:
+            except Exception:
                 ll_1 = -1e9
 
             # Softmax to convert log-likelihoods to probabilities

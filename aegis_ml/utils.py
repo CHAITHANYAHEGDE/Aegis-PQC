@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 import sys
 
 
@@ -39,10 +41,6 @@ def get_model_size(model):
         return len(pickle.dumps(model))
     except Exception:
         return sys.getsizeof(model)
-
-
-import json
-import os
 
 
 def get_latest_experiment_dir(base_dir="experiments"):

@@ -37,3 +37,9 @@ Continuous Integration is configured via GitHub Actions in `.github/workflows/va
 
 ## License
 MIT License
+
+## Threats to Validity
+While Aegis-PQC demonstrates strong performance, the following limitations must be acknowledged:
+- **Construct Validity**: Hardware performance counters are mocked using synthetic branch and cache pressure proxies when physical PMUs are unavailable (e.g., on macOS/ARM64).
+- **Internal Validity**: The dataset generation relies on controlled synthetic environments, which may not capture the full noise profile of a production server.
+- **External Validity**: The models are currently trained for ML-KEM-512 and specific side-channel attack profiles; generalizability to other algorithms or unknown novel attacks remains an open research question.

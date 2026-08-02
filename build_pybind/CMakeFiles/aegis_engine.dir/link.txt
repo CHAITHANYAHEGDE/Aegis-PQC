@@ -1,1 +1,0 @@
-/usr/bin/c++  -arch arm64 -bundle -Wl,-headerpad_max_install_names -undefined dynamic_lookup -Xlinker -undefined -Xlinker dynamic_lookup -flto -o aegis_engine.cpython-311-darwin.so CMakeFiles/aegis_engine.dir/aegis_engine.cpp.o   -L/Users/chaithanyahegde/pqc_ai_shield/liboqs_src/build/lib  -Wl,-rpath,/Users/chaithanyahegde/pqc_ai_shield/liboqs_src/build/lib -loqs

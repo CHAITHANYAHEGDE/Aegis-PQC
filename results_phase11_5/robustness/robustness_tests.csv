@@ -1,18 +1,18 @@
 Perturbation,Accuracy
-None,0.999
-Noise 0.1,0.9993333333333333
-Noise 0.5,0.9763333333333334
-Noise 1.0,0.94
+None,0.16666666666666666
+Noise 0.1,0.5593333333333333
+Noise 0.5,0.578
+Noise 1.0,0.5703333333333334
 Drop execution_time_us,0.16666666666666666
 Drop max_rss_kb,0.16666666666666666
-Drop context_switches,1.0
+Drop context_switches,0.16666666666666666
 Drop cpu_usage,0.16666666666666666
-Drop synthetic_cache_proxy,0.999
-Drop synthetic_branch_proxy,0.999
-Drop hw_cpu_cycles,0.999
-Drop hw_instructions,0.999
-Drop hw_cache_references,0.999
-Drop hw_cache_misses,0.999
-Drop hw_branch_instructions,0.999
-Drop hw_branch_misses,0.999
-Drop sw_page_faults,0.999
+Drop synthetic_cache_proxy,0.0
+Drop synthetic_branch_proxy,0.16666666666666666
+Drop hw_cpu_cycles,0.16666666666666666
+Drop hw_instructions,0.16666666666666666
+Drop hw_cache_references,0.16666666666666666
+Drop hw_cache_misses,0.16666666666666666
+Drop hw_branch_instructions,0.16666666666666666
+Drop hw_branch_misses,0.16666666666666666
+Drop sw_page_faults,0.16666666666666666
