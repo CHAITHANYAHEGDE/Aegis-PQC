@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Hegde"
+  given-names: "Chaithanya"
+title: "Aegis-PQC: Post-Quantum Cryptography AI Shield"
+version: 1.0.1
+date-released: 2026-08-02
+url: "https://github.com/CHAITHANYAHEGDE/Aegis-PQC"
+repository-code: "https://github.com/CHAITHANYAHEGDE/Aegis-PQC"
