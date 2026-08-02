@@ -12,6 +12,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
@@ -21,7 +24,7 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake build-essential libomp-dev
+        sudo apt-get install -y cmake build-essential libomp-dev ninja-build
 
     - name: Free Disk Space
       run: |
@@ -33,6 +36,22 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install --no-cache-dir -r requirements.txt
+
+    - name: Build liboqs
+      run: |
+        cd liboqs_src
+        mkdir -p build && cd build
+        cmake -GNinja -DOQS_USE_OPENSSL=OFF -DBUILD_SHARED_LIBS=ON ..
+        ninja
+        sudo ninja install
+
+    - name: Install ONNX Runtime
+      run: |
+        wget https://github.com/microsoft/onnxruntime/releases/download/v1.17.1/onnxruntime-linux-x64-1.17.1.tgz
+        tar -zxvf onnxruntime-linux-x64-1.17.1.tgz
+        sudo cp -r onnxruntime-linux-x64-1.17.1/include/* /usr/local/include/
+        sudo cp -r onnxruntime-linux-x64-1.17.1/lib/* /usr/local/lib/
+        sudo ldconfig
 
     - name: Build C++ Native Engine
       run: |

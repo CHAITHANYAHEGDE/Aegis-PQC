@@ -40,8 +40,13 @@ set(OQS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/liboqs_src/build/include")
 set(OQS_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/liboqs_src/build/lib")
 
 # 5. ONNX Runtime
-set(ONNX_INCLUDE_DIR "/opt/homebrew/include/onnxruntime")
-set(ONNX_LIB_DIR "/opt/homebrew/lib")
+if(APPLE)
+    set(ONNX_INCLUDE_DIR "/opt/homebrew/include/onnxruntime")
+    set(ONNX_LIB_DIR "/opt/homebrew/lib")
+else()
+    set(ONNX_INCLUDE_DIR "/usr/local/include")
+    set(ONNX_LIB_DIR "/usr/local/lib")
+endif()
 
 target_include_directories(aegis_engine PRIVATE "${OQS_INCLUDE_DIR}" "${ONNX_INCLUDE_DIR}")
 target_link_directories(aegis_engine PRIVATE "${OQS_LIB_DIR}" "${ONNX_LIB_DIR}")

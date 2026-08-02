@@ -62,6 +62,14 @@ jobs:
           pip install --no-cache-dir -r requirements.txt
           pip install pybind11
 
+      - name: Install ONNX Runtime
+        run: |
+          wget https://github.com/microsoft/onnxruntime/releases/download/v1.17.1/onnxruntime-linux-x64-1.17.1.tgz
+          tar -zxvf onnxruntime-linux-x64-1.17.1.tgz
+          sudo cp -r onnxruntime-linux-x64-1.17.1/include/* /usr/local/include/
+          sudo cp -r onnxruntime-linux-x64-1.17.1/lib/* /usr/local/lib/
+          sudo ldconfig
+
       - name: Build Pybind11 Extension
         run: |
           mkdir -p build_pybind && cd build_pybind
