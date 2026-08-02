@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -29,7 +29,7 @@ jobs:
 
       - name: Cache liboqs Build
         id: cache-liboqs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: liboqs_src/build
           key: ${{ runner.os }}-liboqs-${{ hashFiles('liboqs_src/**/*.c', 'liboqs_src/**/*.h', 'liboqs_src/CMakeLists.txt') }}
@@ -80,7 +80,7 @@ jobs:
           python run_benchmark.py --algo ML-KEM-512
 
       - name: Archive Benchmark Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: benchmark-results
           path: experiments/
