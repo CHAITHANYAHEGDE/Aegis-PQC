@@ -17,7 +17,8 @@ except ImportError:
     exit(1)
 
 process = psutil.Process(os.getpid())
-process.cpu_percent(interval=None) # Prime the cpu measurement
+process.cpu_percent(interval=None)  # Prime the cpu measurement
+
 
 def measure_system_resources():
     return {

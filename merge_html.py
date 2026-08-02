@@ -2,8 +2,12 @@ import re
 
 import os
 
-hero_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "aegis-pqc-hero.html")
-dashboard_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "index.html")
+hero_path = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "aegis-pqc-hero.html"
+)
+dashboard_path = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "templates", "index.html"
+)
 
 with open(hero_path, "r") as f:
     hero = f.read()

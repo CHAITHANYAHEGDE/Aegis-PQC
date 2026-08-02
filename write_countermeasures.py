@@ -1,6 +1,8 @@
 import os
 
-base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "aegis_ml", "countermeasures")
+base_dir = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "aegis_ml", "countermeasures"
+)
 os.makedirs(base_dir, exist_ok=True)
 
 files = {}

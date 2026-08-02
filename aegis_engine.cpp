@@ -164,17 +164,21 @@ public:
 
 namespace py = pybind11;
 
-// Global Singletons for Model and Policy
-static ONNXModel* g_model = nullptr;
-static PolicyEngine* g_policy = nullptr;
+// Thread-safe Meyer's singletons
+ONNXModel* get_model() {
+    static ONNXModel model("rf_model.onnx");
+    return &model;
+}
+
+PolicyEngine* get_policy() {
+    static PolicyEngine policy(2, 1000);
+    return &policy;
+}
 
 void init_defense_subsystem() {
-    if (!g_model) {
-        g_model = new ONNXModel("rf_model.onnx");
-    }
-    if (!g_policy) {
-        g_policy = new PolicyEngine(2, 1000);
-    }
+    // Force initialization
+    get_model();
+    get_policy();
 }
 
 std::map<std::string, double> run_crypto(const std::string& algo_name, const std::string& attack_profile) {
@@ -207,10 +211,10 @@ std::map<std::string, double> run_crypto(const std::string& algo_name, const std
                 OQS_KEM_encaps(kem, ciphertext, shared_secret, public_key);
             }
             
-            free(public_key);
-            free(secret_key);
-            free(ciphertext);
-            free(shared_secret);
+            OQS_MEM_insecure_free(public_key);
+            OQS_MEM_secure_free(secret_key, kem->length_secret_key);
+            OQS_MEM_insecure_free(ciphertext);
+            OQS_MEM_secure_free(shared_secret, kem->length_shared_secret);
             OQS_KEM_free(kem);
         } else {
             throw std::runtime_error("Unsupported KEM algorithm: " + algo_name);
@@ -230,9 +234,9 @@ std::map<std::string, double> run_crypto(const std::string& algo_name, const std
                 OQS_SIG_sign(sig, signature, &signature_len, message, message_len, secret_key);
             }
             
-            free(public_key);
-            free(secret_key);
-            free(signature);
+            OQS_MEM_insecure_free(public_key);
+            OQS_MEM_secure_free(secret_key, sig->length_secret_key);
+            OQS_MEM_insecure_free(signature);
             OQS_SIG_free(sig);
         } else {
             throw std::runtime_error("Unsupported Signature algorithm: " + algo_name);
@@ -299,6 +303,8 @@ std::map<std::string, double> run_crypto(const std::string& algo_name, const std
     hw_perf.populate_telemetry(telemetry);
     
     // Evaluate Anomaly using Native Runtime ONNX Model
+    ONNXModel* g_model = get_model();
+    PolicyEngine* g_policy = get_policy();
     if (g_model && g_model->loaded()) {
         std::vector<float> features;
         // Software features

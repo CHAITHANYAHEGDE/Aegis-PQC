@@ -47,7 +47,7 @@ print(f"Data shape: {X.shape}")
 rf = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
 rf.fit(X, y)
 preds = rf.predict(X)
-f1 = f1_score(y, preds, average='macro')
+f1 = f1_score(y, preds, average="macro")
 print(f"Python RF F1-Score: {f1:.4f}")
 
 # Permutation Importance
@@ -55,14 +55,16 @@ result = permutation_importance(rf, X, y, n_repeats=5, random_state=42, n_jobs=-
 print("\nPermutation Importance:")
 for i in result.importances_mean.argsort()[::-1]:
     if result.importances_mean[i] - 2 * result.importances_std[i] > 0:
-        print(f"  {features[i]:<25}: {result.importances_mean[i]:.4f} +/- {result.importances_std[i]:.4f}")
+        print(
+            f"  {features[i]:<25}: {result.importances_mean[i]:.4f} +/- {result.importances_std[i]:.4f}"
+        )
 
 # Feature Ablation: Removing execution_time_us
 features_ablated = [f for f in features if f != "execution_time_us"]
 X_ablated = df[features_ablated].fillna(-1).values
 rf_ablated = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
 rf_ablated.fit(X_ablated, y)
-f1_ablated = f1_score(y, rf_ablated.predict(X_ablated), average='macro')
+f1_ablated = f1_score(y, rf_ablated.predict(X_ablated), average="macro")
 print(f"\nAblated RF (No execution_time_us) F1-Score: {f1_ablated:.4f}")
 
 print("\n--- 2. VALIDATE NATIVE ONNX PIPELINE ---")

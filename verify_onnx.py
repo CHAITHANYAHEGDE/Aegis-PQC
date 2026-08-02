@@ -51,7 +51,9 @@ onnx_out = sess.run(None, {input_name: X})
 onnx_labels = onnx_out[0]
 onnx_probs_list = onnx_out[1]
 
-onnx_prob_arr = np.array([[row.get(c, 0.0) for c in rf.classes_] for row in onnx_probs_list])
+onnx_prob_arr = np.array(
+    [[row.get(c, 0.0) for c in rf.classes_] for row in onnx_probs_list]
+)
 
 max_abs_diff = np.max(np.abs(python_probs - onnx_prob_arr))
 print(f"ONNX vs Python Maximum Absolute Error (Probabilities): {max_abs_diff:.8e}")

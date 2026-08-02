@@ -2,7 +2,7 @@
 
 *Disclaimer: This document is for informational purposes only to assist patent attorneys in drafting claims. It does not constitute legal advice and does not automatically assert patent novelty.*
 
-## 1. Candidate Novel Contributions
+## 1. Candidate Contributions (Potential Novelty)
 1. **Coupled Execution and Telemetry Capture**: The tight integration of a Post-Quantum Cryptographic algorithm with immediate, synchronous hardware telemetry capture in native C++ prior to returning to the caller application.
 2. **Synchronous Runtime Anomaly Detection via ONNX**: The real-time evaluation of an ML model (via ONNX Runtime) directly within the cryptographic execution path, enabling microsecond-scale detection and mitigation before the ciphertext/plaintext is returned to a potentially malicious caller.
 3. **Adaptive Cryptographic Mitigation**: An active mitigation pipeline that responds to inferred side-channel attacks by randomizing execution delays or throttling the *current* request, neutralizing the timing/cache signal before it completes.
@@ -22,5 +22,5 @@
 - **Dependent Claim 1.2**: The method of claim 1, wherein modifying the return state includes injecting a randomized, unpredictable delay to obfuscate side-channel timing signals.
 
 ## 4. Aspects Requiring Professional Patent Search
-- A thorough search is required to ensure no existing patents cover inline ML inference specifically used for thwarting side-channel attacks during the execution of standard cryptographic libraries.
+- This feature requires professional prior-art review to ensure no existing patents cover inline ML inference specifically used for thwarting side-channel attacks during the execution of standard cryptographic libraries.
 - The use of ONNX Runtime inside a security enclave or sensitive execution path for anomaly detection.

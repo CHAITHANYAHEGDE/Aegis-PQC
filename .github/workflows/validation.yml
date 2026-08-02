@@ -53,12 +53,15 @@ jobs:
         sudo cp -r onnxruntime-linux-x64-1.17.1/lib/* /usr/local/lib/
         sudo ldconfig
 
-    - name: Build C++ Native Engine
+    - name: Build Pybind11 Extension
       run: |
-        mkdir build
-        cd build
-        cmake -DCMAKE_CXX_STANDARD=17 ..
-        make -j2
+        mkdir -p build_pybind && cd build_pybind
+        cmake -DPython3_EXECUTABLE=$(which python) ..
+        make
+        cp aegis_engine*.so ../
+          
+    - name: Install Project in Editable Mode
+      run: pip install -e .
 
     - name: Run Cross-Validation Pipeline
       run: |
