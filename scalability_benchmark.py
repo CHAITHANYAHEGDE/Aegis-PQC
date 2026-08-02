@@ -11,9 +11,9 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 
 # Load the native C++ pipeline module
 try:
-    from build import aegis_engine
+    import aegis_engine
 except ImportError:
-    print("Could not import build.aegis_engine. Make sure it's built.")
+    print("Could not import aegis_engine. Make sure it's built.")
     exit(1)
 
 process = psutil.Process(os.getpid())
