@@ -1,7 +1,7 @@
 absl-py==2.3.1
-aegis_ml @ file:///Users/chaithanyahegde/pqc_ai_shield
+-e .
 alembic==1.16.5
-altgraph @ file:///AppleInternal/Library/BuildRoots/4~CQH2ugAdEkxx3ZkrZolIWlkoB3pJrxMjVv7CK8s/Library/Caches/com.apple.xbs/TemporaryDirectory.1I3Zwu/Sources/python3/altgraph-0.17.2-py2.py3-none-any.whl
+altgraph==0.17.2
 annotated-types==0.7.0
 anyio==4.12.1
 appnope==0.1.4
@@ -48,7 +48,7 @@ Flask==3.0.2
 fonttools==4.60.2
 fqdn==1.5.1
 fsspec==2025.10.0
-future @ file:///AppleInternal/Library/BuildRoots/4~CQH2ugAdEkxx3ZkrZolIWlkoB3pJrxMjVv7CK8s/Library/Caches/com.apple.xbs/TemporaryDirectory.1I3Zwu/Sources/python3/future-0.18.2-py3-none-any.whl
+future==0.18.2
 graphviz==0.21
 grpcio==1.80.0
 h11==0.16.0
@@ -94,7 +94,7 @@ lightgbm==4.6.0
 lime==0.2.0.1
 llvmlite==0.43.0
 logistro==2.0.1
-macholib @ file:///AppleInternal/Library/BuildRoots/4~CQH2ugAdEkxx3ZkrZolIWlkoB3pJrxMjVv7CK8s/Library/Caches/com.apple.xbs/TemporaryDirectory.1I3Zwu/Sources/python3/macholib-1.15.2-py2.py3-none-any.whl
+macholib==1.15.2
 Mako==1.3.12
 Markdown==3.9
 MarkupSafe==3.0.3
@@ -165,7 +165,7 @@ seaborn==0.13.1
 Send2Trash==2.1.0
 shap==0.49.1
 simplejson==4.1.1
-six @ file:///AppleInternal/Library/BuildRoots/4~CQH2ugAdEkxx3ZkrZolIWlkoB3pJrxMjVv7CK8s/Library/Caches/com.apple.xbs/TemporaryDirectory.1I3Zwu/Sources/python3/six-1.15.0-py2.py3-none-any.whl
+six==1.15.0
 slicer==0.0.8
 soupsieve==2.8.3
 SQLAlchemy==2.0.51

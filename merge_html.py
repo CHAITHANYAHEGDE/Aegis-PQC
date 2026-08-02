@@ -1,9 +1,14 @@
 import re
 
-with open("/Users/chaithanyahegde/Downloads/aegis-pqc-hero.html", "r") as f:
+import os
+
+hero_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "aegis-pqc-hero.html")
+dashboard_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "index.html")
+
+with open(hero_path, "r") as f:
     hero = f.read()
 
-with open("/Users/chaithanyahegde/pqc_ai_shield/templates/index.html", "r") as f:
+with open(dashboard_path, "r") as f:
     dashboard = f.read()
 
 # Extract styles
@@ -90,5 +95,5 @@ merged = f"""<!DOCTYPE html>
 </html>
 """
 
-with open("/Users/chaithanyahegde/pqc_ai_shield/templates/index.html", "w") as f:
+with open(dashboard_path, "w") as f:
     f.write(merged)

@@ -5,3 +5,7 @@ __pycache__/
 .DS_Store
 .venv/
 .venv/
+
+build/
+build_py39/
+*.so
